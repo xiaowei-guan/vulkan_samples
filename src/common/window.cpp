@@ -2,48 +2,29 @@
 
 #include <iostream>
 
-Window::Window() {
+Window::Window(const uint32_t &width, const uint32_t &height) {
+  mWidth = width;
+  mHeight = height;
+
+  // Initializes the GLFW library.
   glfwInit();
+
+  // Don't initialize OpenGL context. Disable resizing windows.
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-}
-Window::~Window() {
-  if (window_) {
-    glfwDestroyWindow(window_);
+
+  mWindow =
+      glfwCreateWindow(mWidth, mHeight, "vulkan window", nullptr, nullptr);
+  if (!mWindow) {
+    std::cerr << "Error: failed to create window" << std::endl;
   }
+}
+
+Window::~Window() {
+  glfwDestroyWindow(mWindow);
   glfwTerminate();
 }
 
-bool Window::Create(const char *title, int width, int height) {
-  window_ = glfwCreateWindow(width, height, title, nullptr, nullptr);
-  if (window_ == nullptr) {
-    std::cout << "Failed to create GLFW window" << std::endl;
-    return false;
-  }
-  return true;
-}
+bool Window::windowShouldClose() { return glfwWindowShouldClose(mWindow); }
 
-GLFWwindow *Window::GetWindow() { return window_; }
-
-// process all input: query GLFW whether relevant keys are pressed/released this
-// frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-void Window::ProcessInput() {
-  if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(window_, true);
-}
-
-bool Window::RenderingLoop(VulkanCommon &vulkan_common) {
-  while (!glfwWindowShouldClose(window_)) {
-    // input
-    // -----
-    ProcessInput();
-    // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved
-    // etc.)
-    // -------------------------------------------------------------------------------
-    
-    vulkan_common.Draw();
-    glfwPollEvents();
-  }
-  return true;
-}
+void Window::pollEvents() { return glfwPollEvents(); }

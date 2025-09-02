@@ -1,21 +1,32 @@
 #ifndef WINDOW_H_
 #define WINDOW_H_
+
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include "common/vulkan_common.h"
+#include <memory>
 
 class Window {
  public:
-  Window();
+  using Ptr = std::shared_ptr<Window>;
+  static Ptr create(const uint32_t &width, const uint32_t &height) {
+    return std::make_shared<Window>(width, height);
+  }
+
+  Window(const uint32_t &width, const uint32_t &height);
+
   ~Window();
 
-  bool Create(const char *title, int width, int height);
-  GLFWwindow *GetWindow();
-  bool RenderingLoop(VulkanCommon &vulkan_common);
+  bool windowShouldClose();
+
+  void pollEvents();
+
+  [[nodiscard]] auto getWindow() const { return mWindow; }
 
  private:
-  GLFWwindow *window_ = nullptr;
-  void ProcessInput();
+  uint32_t mWidth{0};
+  uint32_t mHeight{0};
+  GLFWwindow *mWindow{NULL};
 };
 
 #endif

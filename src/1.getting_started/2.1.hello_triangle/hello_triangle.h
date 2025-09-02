@@ -1,36 +1,60 @@
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#ifndef HELLO_TRIANGLE_H_
+#define HELLO_TRIANGLE_H_
 
-#include "common/tools.h"
-#include "common/vulkan_common.h"
+#include "common/command_buffer.h"
+#include "common/device.h"
+#include "common/frame_buffers.h"
+#include "common/graphics_pipeline.h"
+#include "common/instance.h"
+#include "common/render_pass.h"
+#include "common/swap_chain.h"
+#include "common/sync_objects.h"
+#include "common/window.h"
+#include "common/window_surface.h"
 
-class HelloTriangle : public VulkanCommon {
+const uint32_t WIDTH = 800;
+const uint32_t HEIGHT = 600;
+
+class HelloTriangleApplication {
  public:
-  HelloTriangle();
-  ~HelloTriangle();
-  bool CreateRenderPass();
-  bool CreateFramebuffers();
-  bool CreatePipeline();
-  bool CreateSemaphores();
-  bool CreateCommandBuffers();
-  bool RecordCommandBuffers();
-  bool Draw() override;
+  HelloTriangleApplication() = default;
+
+  ~HelloTriangleApplication() = default;
+
+  void run();
 
  private:
-  void ChildClear() override;
-  bool ChildOnWindowSizeChanged() override;
-  Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
-  CreateShaderModule(const char* filename);
-  Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>
-  CreatePipelineLayout();
-  bool CreateCommandPool(uint32_t queue_family_index, VkCommandPool* pool);
-  bool AllocateCommandBuffers(VkCommandPool pool, uint32_t count,
-                              VkCommandBuffer* command_buffers);
-  VkRenderPass render_pass_;
-  std::vector<VkFramebuffer> framebuffers_;
-  VkPipeline graphics_pipeline_;
-  VkSemaphore image_available_semaphore_;
-  VkSemaphore rendering_finished_femaphore_;
-  VkCommandPool graphics_command_pool_;
-  std::vector<VkCommandBuffer> graphics_command_buffers_;
+  void initWindow();
+
+  void initVulkan();
+
+  void mainLoop();
+
+  void drawFrame();
+
+  void cleanUp();
+
+ private:
+  void createRenderPass();
+  void createPipeline();
+
+ private:
+  Window::Ptr mWindow{nullptr};
+  Instance::Ptr mInstance{nullptr};
+  WindowSurface::Ptr mSurface{nullptr};
+  Device::Ptr mDevice{nullptr};
+  SwapChain::Ptr mSwapChain{nullptr};
+  RenderPass::Ptr mRenderPass{nullptr};
+  GraphicsPipeline::Ptr mGraphicsPipeline{nullptr};
+  FrameBuffers::Ptr mFrameBuffers{nullptr};
+  CommandPool::Ptr mCommandPool{nullptr};
+
+  std::vector<CommandBuffer::Ptr> mCommandBuffers{};
+
+  uint32_t mCurrentFrame{0};
+  std::vector<Semaphore::Ptr> mImageAvailableSemaphores{};
+  std::vector<Semaphore::Ptr> mRenderFinishedSemaphores{};
+  std::vector<Fence::Ptr> mFences{};
 };
+
+#endif

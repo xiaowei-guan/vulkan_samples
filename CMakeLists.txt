@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(LearnVulkan VERSION 0.1.0 LANGUAGES C CXX)
 SET(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_CXX_STANDARD 20)
 
 find_package(PkgConfig REQUIRED)
 find_package (Vulkan REQUIRED)
@@ -18,13 +19,21 @@ set(CHAPTERS
 set(1.getting_started
     1.1.hello_window
     2.1.hello_triangle
-    2.2.hello_triangle_vertex
+    #2.2.hello_triangle_vertex
 )
 
 file( GLOB ADVANCED_SHARED_SOURCE_FILES
+        "src/common/command_buffer.cpp"
+        "src/common/device.cpp"
+        "src/common/frame_buffers.cpp"
+        "src/common/graphics_pipeline.cpp"
+        "src/common/instance.cpp"
+        "src/common/render_pass.cpp"
+        "src/common/swap_chain.cpp"
+        "src/common/sync_objects.cpp"
 		"src/common/window.cpp"
-		"src/common/vulkan_common.cpp"
-        "src/common/tools.cpp" )
+        "src/common/tools.cpp"
+        "src/common/window_surface.cpp" )
 
 function(create_project_from_sources chapter demo)
     file(GLOB SOURCE
