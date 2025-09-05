@@ -1,15 +1,31 @@
-#ifndef GRAPHICS_PIPELINE_H_
-#define GRAPHICS_PIPELINE_H_
+////////////////////////////////////////////////////////////////////////////////
+// Copyright 2017 Intel Corporation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
+////////////////////////////////////////////////////////////////////////////////
 
+#ifndef COMMON_GRAPHICS_PIPELINE_H_
+#define COMMON_GRAPHICS_PIPELINE_H_
 
-#include "device.h"
-#include "render_pass.h"
+#include <memory>
 #include <string>
+#include <vector>
 
-
+#include "common/device.h"
+#include "common/render_pass.h"
 
 class ShaderStageInfo {
-public:
+ public:
   using Ptr = std::shared_ptr<ShaderStageInfo>;
   static Ptr create(const Device::Ptr &device, const std::string &fileName,
                     VkShaderStageFlagBits shaderStage,
@@ -29,10 +45,10 @@ public:
   [[nodiscard]] auto getShaderModule() const { return mShaderModule; }
   [[nodiscard]] auto getShaderStageInfo() const { return mShaderStageInfo; }
 
-private:
+ private:
   void createShaderModule(const std::vector<char> &code);
 
-private:
+ private:
   VkShaderModule mShaderModule{VK_NULL_HANDLE};
   VkPipelineShaderStageCreateInfo mShaderStageInfo{};
 
@@ -43,7 +59,7 @@ private:
 };
 
 class GraphicsPipeline {
-public:
+ public:
   using Ptr = std::shared_ptr<GraphicsPipeline>;
   static Ptr create(const Device::Ptr &device,
                     const RenderPass::Ptr &renderPass) {
@@ -54,8 +70,8 @@ public:
                    const RenderPass::Ptr &renderPass);
   ~GraphicsPipeline();
 
-  void
-  setShaderStages(std::vector<VkPipelineShaderStageCreateInfo> &shaderStages) {
+  void setShaderStages(
+      const std::vector<VkPipelineShaderStageCreateInfo> &shaderStages) {
     mShaderStages = shaderStages;
   }
 
@@ -77,7 +93,7 @@ public:
   [[nodiscard]] auto getPipelineLayout() const { return mPipelineLayout; }
   [[nodiscard]] auto getPipeline() const { return mGraphicsPipeline; }
 
-public:
+ public:
   VkPipelineVertexInputStateCreateInfo mVertexInputInfo{};
   VkPipelineInputAssemblyStateCreateInfo mInputAssembly{};
   VkPipelineViewportStateCreateInfo mViewportState{};
@@ -89,7 +105,7 @@ public:
 
   VkPipelineLayoutCreateInfo mPipelineLayoutInfo{};
 
-private:
+ private:
   VkPipelineLayout mPipelineLayout{VK_NULL_HANDLE};
   VkPipeline mGraphicsPipeline{VK_NULL_HANDLE};
 
@@ -101,4 +117,4 @@ private:
   std::vector<VkRect2D> mScissors{};
 };
 
-#endif
+#endif  // COMMON_GRAPHICS_PIPELINE_H_

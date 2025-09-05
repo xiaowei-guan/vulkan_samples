@@ -1,11 +1,28 @@
-#ifndef SWAP_CHAIN_H_
-#define SWAP_CHAIN_H_
+////////////////////////////////////////////////////////////////////////////////
+// Copyright 2017 Intel Corporation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
+////////////////////////////////////////////////////////////////////////////////
 
-#include "device.h"
-#include "window.h"
-#include "window_surface.h"
+#ifndef COMMON_SWAP_CHAIN_H_
+#define COMMON_SWAP_CHAIN_H_
 
+#include <vector>
+#include <memory>
 
+#include "common/device.h"
+#include "common/window.h"
+#include "common/window_surface.h"
 
 struct SwapChainSupportDetails {
   VkSurfaceCapabilitiesKHR capabilities;
@@ -14,7 +31,7 @@ struct SwapChainSupportDetails {
 };
 
 class SwapChain {
-public:
+ public:
   using Ptr = std::shared_ptr<SwapChain>;
   static Ptr create(const Device::Ptr &device,
                     const WindowSurface::Ptr &surface,
@@ -51,10 +68,10 @@ public:
 
   [[nodiscard]] auto getSwapChain() const { return mSwapChain; }
 
-private:
+ private:
   void createImageViews();
 
-private:
+ private:
   Device::Ptr mDevice{nullptr};
   WindowSurface::Ptr mSurface{nullptr};
   Window::Ptr mWindow{nullptr};
@@ -68,4 +85,4 @@ private:
   std::vector<VkImageView> mSwapChainImageViews{};
 };
 
-#endif
+#endif  // COMMON_SWAP_CHAIN_H_

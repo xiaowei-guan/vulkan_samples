@@ -1,36 +1,52 @@
-#ifndef SYNC_OBJECTS_H_
-#define SYNC_OBJECTS_H_
+////////////////////////////////////////////////////////////////////////////////
+// Copyright 2017 Intel Corporation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
+////////////////////////////////////////////////////////////////////////////////
 
-#include "device.h"
+#ifndef COMMON_SYNC_OBJECTS_H_
+#define COMMON_SYNC_OBJECTS_H_
 
+#include <memory>
 
+#include "common/device.h"
 
 class Semaphore {
-public:
+ public:
   using Ptr = std::shared_ptr<Semaphore>;
   static Ptr create(const Device::Ptr &device) {
     return std::make_shared<Semaphore>(device);
   }
 
-  Semaphore(const Device::Ptr &device);
+  explicit Semaphore(const Device::Ptr &device);
 
   ~Semaphore();
 
   [[nodiscard]] auto getSemaphore() const { return mSemaphore; }
 
-private:
+ private:
   VkSemaphore mSemaphore{VK_NULL_HANDLE};
   Device::Ptr mDevice{nullptr};
 };
 
 class Fence {
-public:
+ public:
   using Ptr = std::shared_ptr<Fence>;
   static Ptr create(const Device::Ptr &device, bool signaled = true) {
     return std::make_shared<Fence>(device, signaled);
   }
 
-  Fence(const Device::Ptr &device, bool signaled = true);
+  explicit Fence(const Device::Ptr &device, bool signaled = true);
 
   ~Fence();
 
@@ -40,9 +56,9 @@ public:
 
   [[nodiscard]] auto getFence() const { return mFence; }
 
-private:
+ private:
   VkFence mFence{VK_NULL_HANDLE};
   Device::Ptr mDevice{nullptr};
 };
 
-#endif
+#endif  // COMMON_SYNC_OBJECTS_H_

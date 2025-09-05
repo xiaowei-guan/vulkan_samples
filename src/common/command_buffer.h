@@ -1,7 +1,25 @@
-#ifndef COMMAND_BUFFER_H
-#define COMMAND_BUFFER_H
+////////////////////////////////////////////////////////////////////////////////
+// Copyright 2017 Intel Corporation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
+////////////////////////////////////////////////////////////////////////////////
 
-#include "device.h"
+#ifndef COMMAND_BUFFER_H_
+#define COMMAND_BUFFER_H_
+
+#include <memory>
+
+#include "common/device.h"
 
 class CommandPool {
  public:
@@ -10,7 +28,7 @@ class CommandPool {
                     VkCommandPoolCreateFlagBits flag =
                         VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT) {
     return std::make_shared<CommandPool>(device, flag);
-  };
+  }
 
   CommandPool(const Device::Ptr &device,
               VkCommandPoolCreateFlagBits flag =
@@ -32,7 +50,7 @@ class CommandBuffer {
                     const CommandPool::Ptr &commandPool,
                     bool asSecondary = false) {
     return std::make_shared<CommandBuffer>(device, commandPool, asSecondary);
-  };
+  }
 
   CommandBuffer(const Device::Ptr &device, const CommandPool::Ptr &commandPool,
                 bool asSecondary = false);
@@ -58,4 +76,4 @@ class CommandBuffer {
   CommandPool::Ptr mCommandPool{nullptr};
 };
 
-#endif
+#endif  // COMMAND_BUFFER_H_

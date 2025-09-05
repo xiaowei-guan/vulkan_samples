@@ -32,7 +32,6 @@ file( GLOB ADVANCED_SHARED_SOURCE_FILES
         "src/common/swap_chain.cpp"
         "src/common/sync_objects.cpp"
 		"src/common/window.cpp"
-        "src/common/tools.cpp"
         "src/common/window_surface.cpp" )
 
 function(create_project_from_sources chapter demo)
@@ -90,5 +89,4 @@ include_directories(
     ${Vulkan_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/src/common
 )
