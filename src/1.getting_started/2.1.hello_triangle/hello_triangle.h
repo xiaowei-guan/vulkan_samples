@@ -21,22 +21,22 @@ class HelloTriangleApplication {
 
   ~HelloTriangleApplication() = default;
 
-  void run();
+  void Run();
 
  private:
-  void initWindow();
+  void InitWindow();
 
-  void initVulkan();
+  void InitVulkan();
 
-  void mainLoop();
+  void MainLoop();
 
-  void drawFrame();
+  void DrawFrame();
 
-  void cleanUp();
+  void CleanUp();
 
  private:
-  void createRenderPass();
-  void createPipeline();
+  void CreateRenderPass();
+  void CreatePipeline();
 
  private:
   Window::Ptr mWindow{nullptr};

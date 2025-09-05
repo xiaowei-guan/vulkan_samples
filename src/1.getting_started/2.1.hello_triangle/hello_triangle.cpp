@@ -1,17 +1,17 @@
 #include "hello_triangle.h"
 
-void HelloTriangleApplication::run() {
-  initWindow();
-  initVulkan();
-  mainLoop();
-  cleanUp();
+void HelloTriangleApplication::Run() {
+  InitWindow();
+  InitVulkan();
+  MainLoop();
+  CleanUp();
 }
 
-void HelloTriangleApplication::initWindow() {
+void HelloTriangleApplication::InitWindow() {
   mWindow = Window::create(WIDTH, HEIGHT);
 }
 
-void HelloTriangleApplication::initVulkan() {
+void HelloTriangleApplication::InitVulkan() {
   mInstance = Instance::create(true);
   // The window surface can actually influence the physical device selection.
   // So we create it after the instance creation.
@@ -20,9 +20,9 @@ void HelloTriangleApplication::initVulkan() {
   mSwapChain = SwapChain::create(mDevice, mSurface, mWindow);
 
   mRenderPass = RenderPass::create(mDevice);
-  createRenderPass();
+  CreateRenderPass();
   mGraphicsPipeline = GraphicsPipeline::create(mDevice, mRenderPass);
-  createPipeline();
+  CreatePipeline();
 
   mFrameBuffers = FrameBuffers::create(mDevice, mSwapChain, mRenderPass);
   mCommandPool = CommandPool::create(mDevice);
@@ -67,7 +67,7 @@ void HelloTriangleApplication::initVulkan() {
   }
 }
 
-void HelloTriangleApplication::createRenderPass() {
+void HelloTriangleApplication::CreateRenderPass() {
   // 1.Attachment description.
   VkAttachmentDescription colorAttachment{};
   colorAttachment.format = mSwapChain->getSwapChainImageFormat();
@@ -108,7 +108,7 @@ void HelloTriangleApplication::createRenderPass() {
   mRenderPass->buildRenderPass();
 }
 
-void HelloTriangleApplication::createPipeline() {
+void HelloTriangleApplication::CreatePipeline() {
   // 1.Shader stages: the shader modules that define the functionality of the
   // programmable stages of the graphics pipeline.
   std::vector<VkPipelineShaderStageCreateInfo> shaderStages{};
@@ -260,16 +260,16 @@ void HelloTriangleApplication::createPipeline() {
   mGraphicsPipeline->buildPipeline();
 }
 
-void HelloTriangleApplication::mainLoop() {
+void HelloTriangleApplication::MainLoop() {
   while (!mWindow->windowShouldClose()) {
     mWindow->pollEvents();
-    drawFrame();
+    DrawFrame();
   }
 
   vkDeviceWaitIdle(mDevice->getDevice());
 }
 
-void HelloTriangleApplication::drawFrame() {
+void HelloTriangleApplication::DrawFrame() {
   mFences[mCurrentFrame]->block();
 
   // Acquiring an image from the swap chain.
@@ -325,7 +325,7 @@ void HelloTriangleApplication::drawFrame() {
   mCurrentFrame = (mCurrentFrame + 1) % mSwapChain->getSwapChainImageCount();
 }
 
-void HelloTriangleApplication::cleanUp() {
+void HelloTriangleApplication::CleanUp() {
   mGraphicsPipeline.reset();
   mSwapChain.reset();
   mDevice.reset();
