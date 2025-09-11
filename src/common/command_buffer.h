@@ -24,7 +24,7 @@
 class CommandPool {
  public:
   using Ptr = std::shared_ptr<CommandPool>;
-  static Ptr create(const Device::Ptr &device,
+  static Ptr Create(const Device::Ptr &device,
                     VkCommandPoolCreateFlagBits flag =
                         VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT) {
     return std::make_shared<CommandPool>(device, flag);
@@ -35,7 +35,7 @@ class CommandPool {
                   VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
   ~CommandPool();
 
-  [[nodiscard]] auto getCommandPool() const { return mCommandPool; }
+  [[nodiscard]] auto GetCommandPool() const { return mCommandPool; }
 
  private:
   VkCommandPool mCommandPool{VK_NULL_HANDLE};
@@ -46,7 +46,7 @@ class CommandPool {
 class CommandBuffer {
  public:
   using Ptr = std::shared_ptr<CommandBuffer>;
-  static Ptr create(const Device::Ptr &device,
+  static Ptr Create(const Device::Ptr &device,
                     const CommandPool::Ptr &commandPool,
                     bool asSecondary = false) {
     return std::make_shared<CommandBuffer>(device, commandPool, asSecondary);
@@ -56,18 +56,18 @@ class CommandBuffer {
                 bool asSecondary = false);
   ~CommandBuffer();
 
-  void begin(VkCommandBufferUsageFlags flag = 0,
+  void Begin(VkCommandBufferUsageFlags flag = 0,
              const VkCommandBufferInheritanceInfo &inheritance = {
                  .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO});
-  void beginRenderPass(
+  void BeginRenderPass(
       const VkRenderPassBeginInfo &renderPassBeginInfo,
       const VkSubpassContents &subPassContents = VK_SUBPASS_CONTENTS_INLINE);
-  void bindGraphicPipeline(const VkPipeline &pipeline);
-  void draw(size_t vertexCount);
-  void endRenderPass();
-  void end();
+  void BindGraphicPipeline(const VkPipeline &pipeline);
+  void Draw(size_t vertexCount);
+  void EndRenderPass();
+  void End();
 
-  [[nodiscard]] auto getCommandBuffer() const { return mCommandBuffer; }
+  [[nodiscard]] auto GetCommandBuffer() const { return mCommandBuffer; }
 
  private:
   VkCommandBuffer mCommandBuffer{VK_NULL_HANDLE};

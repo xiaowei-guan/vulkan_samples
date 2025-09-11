@@ -23,14 +23,14 @@ CommandPool::CommandPool(const Device::Ptr &device,
                          VkCommandPoolCreateFlagBits flag) {
   mDevice = device;
 
-  QueueFamilyIndices queueFamilyIndices = mDevice->getQueueFamilyIndices();
+  QueueFamilyIndices queueFamilyIndices = mDevice->GetQueueFamilyIndices();
 
   VkCommandPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   poolInfo.flags = flag;
   poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-  if (vkCreateCommandPool(mDevice->getDevice(), &poolInfo, nullptr,
+  if (vkCreateCommandPool(mDevice->GetDevice(), &poolInfo, nullptr,
                           &mCommandPool) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create command pool!");
   }
@@ -38,7 +38,7 @@ CommandPool::CommandPool(const Device::Ptr &device,
 
 CommandPool::~CommandPool() {
   if (mCommandPool != VK_NULL_HANDLE) {
-    vkDestroyCommandPool(mDevice->getDevice(), mCommandPool, nullptr);
+    vkDestroyCommandPool(mDevice->GetDevice(), mCommandPool, nullptr);
   }
 }
 
@@ -50,12 +50,12 @@ CommandBuffer::CommandBuffer(const Device::Ptr &device,
 
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  allocInfo.commandPool = mCommandPool->getCommandPool();
+  allocInfo.commandPool = mCommandPool->GetCommandPool();
   allocInfo.level = asSecondary ? VK_COMMAND_BUFFER_LEVEL_SECONDARY
                                 : VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   allocInfo.commandBufferCount = 1;
 
-  if (vkAllocateCommandBuffers(mDevice->getDevice(), &allocInfo,
+  if (vkAllocateCommandBuffers(mDevice->GetDevice(), &allocInfo,
                                &mCommandBuffer) != VK_SUCCESS) {
     throw std::runtime_error("failed to allocate command buffers!");
   }
@@ -66,7 +66,7 @@ CommandBuffer::~CommandBuffer() {
   mDevice.reset();
 }
 
-void CommandBuffer::begin(VkCommandBufferUsageFlags flag,
+void CommandBuffer::Begin(VkCommandBufferUsageFlags flag,
                           const VkCommandBufferInheritanceInfo &inheritance) {
   VkCommandBufferBeginInfo beginInfo{};
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -78,23 +78,23 @@ void CommandBuffer::begin(VkCommandBufferUsageFlags flag,
   }
 }
 
-void CommandBuffer::beginRenderPass(
+void CommandBuffer::BeginRenderPass(
     const VkRenderPassBeginInfo &renderPassBeginInfo,
     const VkSubpassContents &subPassContents) {
   vkCmdBeginRenderPass(mCommandBuffer, &renderPassBeginInfo, subPassContents);
 }
 
-void CommandBuffer::bindGraphicPipeline(const VkPipeline &pipeline) {
+void CommandBuffer::BindGraphicPipeline(const VkPipeline &pipeline) {
   vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 }
 
-void CommandBuffer::draw(size_t vertexCount) {
+void CommandBuffer::Draw(size_t vertexCount) {
   vkCmdDraw(mCommandBuffer, vertexCount, 1, 0, 0);
 }
 
-void CommandBuffer::endRenderPass() { vkCmdEndRenderPass(mCommandBuffer); }
+void CommandBuffer::EndRenderPass() { vkCmdEndRenderPass(mCommandBuffer); }
 
-void CommandBuffer::end() {
+void CommandBuffer::End() {
   if (vkEndCommandBuffer(mCommandBuffer) != VK_SUCCESS) {
     throw std::runtime_error("Error:failed to end Command Buffer");
   }

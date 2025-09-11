@@ -67,11 +67,11 @@ static void DestroyDebugUtilsMessengerEXT(
 Instance::Instance(bool enableValidationLayer) {
   mEnableValidationLayer = enableValidationLayer;
 
-  if (mEnableValidationLayer && !checkValidationLayerSupport()) {
+  if (mEnableValidationLayer && !CheckValidationLayerSupport()) {
     throw std::runtime_error("Error: validation layer is not supported");
   }
 
-  checkExtensionSupport();
+  CheckExtensionSupport();
 
   VkApplicationInfo appInfo = {};
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -86,7 +86,7 @@ Instance::Instance(bool enableValidationLayer) {
   instCreateInfo.pApplicationInfo = &appInfo;
 
   // Need extensions to interface with the window system.
-  auto extensions = getRequiredExtensions();
+  auto extensions = GetRequiredExtensions();
   instCreateInfo.enabledExtensionCount =
       static_cast<uint32_t>(extensions.size());
   instCreateInfo.ppEnabledExtensionNames = extensions.data();
@@ -117,7 +117,7 @@ Instance::Instance(bool enableValidationLayer) {
     throw std::runtime_error("Error:failed to create instance");
   }
 
-  setupDebugger();
+  SetupDebugger();
 }
 
 Instance::~Instance() {
@@ -127,7 +127,7 @@ Instance::~Instance() {
   vkDestroyInstance(mInstance, nullptr);
 }
 
-void Instance::checkExtensionSupport() {
+void Instance::CheckExtensionSupport() {
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
@@ -142,7 +142,7 @@ void Instance::checkExtensionSupport() {
   }
 }
 
-std::vector<const char *> Instance::getRequiredExtensions() {
+std::vector<const char *> Instance::GetRequiredExtensions() {
   uint32_t glfwExtensionCount = 0;
 
   const char **glfwExtensions =
@@ -159,7 +159,7 @@ std::vector<const char *> Instance::getRequiredExtensions() {
   return extensions;
 }
 
-bool Instance::checkValidationLayerSupport() {
+bool Instance::CheckValidationLayerSupport() {
   uint32_t layerCount = 0;
   vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -186,7 +186,7 @@ bool Instance::checkValidationLayerSupport() {
 
 // If not set, the validation layers will print debug messages to the standard
 // output by default. If set, we can handle debug messages in our program.
-void Instance::setupDebugger() {
+void Instance::SetupDebugger() {
   if (!mEnableValidationLayer) {
     return;
   }

@@ -26,15 +26,15 @@ class SubPass {
  public:
   ~SubPass();
 
-  void addColorAttachmentReference(const VkAttachmentReference &ref);
+  void AddColorAttachmentReference(const VkAttachmentReference &ref);
 
-  void addInputAttachmentReference(const VkAttachmentReference &ref);
+  void AddInputAttachmentReference(const VkAttachmentReference &ref);
 
-  void setDepthStencilAttachmentReference(const VkAttachmentReference &ref);
+  void SetDepthStencilAttachmentReference(const VkAttachmentReference &ref);
 
-  void buildSubPassDescription();
+  void BuildSubPassDescription();
 
-  [[nodiscard]] auto getSubPassDescription() const {
+  [[nodiscard]] auto GetSubPassDescription() const {
     return mSubPassDescription;
   }
 
@@ -49,7 +49,7 @@ class RenderPass {
  public:
   using Ptr = std::shared_ptr<RenderPass>;
 
-  static Ptr create(const Device::Ptr &device) {
+  static Ptr Create(const Device::Ptr &device) {
     return std::make_shared<RenderPass>(device);
   }
 
@@ -57,15 +57,15 @@ class RenderPass {
 
   ~RenderPass();
 
-  void addSubPass(const SubPass &subpass);
+  void AddSubPass(const SubPass &subpass);
 
-  void addDependency(const VkSubpassDependency &dependency);
+  void AddDependency(const VkSubpassDependency &dependency);
 
-  void addAttachment(const VkAttachmentDescription &attachmentDes);
+  void AddAttachment(const VkAttachmentDescription &attachmentDes);
 
-  void buildRenderPass();
+  void BuildRenderPass();
 
-  [[nodiscard]] auto getRenderPass() const { return mRenderPass; }
+  [[nodiscard]] auto GetRenderPass() const { return mRenderPass; }
 
  private:
   VkRenderPass mRenderPass{VK_NULL_HANDLE};

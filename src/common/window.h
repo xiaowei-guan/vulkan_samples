@@ -25,7 +25,7 @@
 class Window {
  public:
   using Ptr = std::shared_ptr<Window>;
-  static Ptr create(const uint32_t &width, const uint32_t &height) {
+  static Ptr Create(const uint32_t &width, const uint32_t &height) {
     return std::make_shared<Window>(width, height);
   }
 
@@ -33,11 +33,11 @@ class Window {
 
   ~Window();
 
-  bool windowShouldClose();
+  bool WindowShouldClose();
 
-  void pollEvents();
+  void PollEvents();
 
-  [[nodiscard]] auto getWindow() const { return mWindow; }
+  [[nodiscard]] auto GetWindow() const { return mWindow; }
 
  private:
   uint32_t mWidth{0};

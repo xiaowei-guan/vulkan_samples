@@ -24,7 +24,7 @@
 class Semaphore {
  public:
   using Ptr = std::shared_ptr<Semaphore>;
-  static Ptr create(const Device::Ptr &device) {
+  static Ptr Create(const Device::Ptr &device) {
     return std::make_shared<Semaphore>(device);
   }
 
@@ -32,7 +32,7 @@ class Semaphore {
 
   ~Semaphore();
 
-  [[nodiscard]] auto getSemaphore() const { return mSemaphore; }
+  [[nodiscard]] auto GetSemaphore() const { return mSemaphore; }
 
  private:
   VkSemaphore mSemaphore{VK_NULL_HANDLE};
@@ -42,7 +42,7 @@ class Semaphore {
 class Fence {
  public:
   using Ptr = std::shared_ptr<Fence>;
-  static Ptr create(const Device::Ptr &device, bool signaled = true) {
+  static Ptr Create(const Device::Ptr &device, bool signaled = true) {
     return std::make_shared<Fence>(device, signaled);
   }
 
@@ -52,9 +52,9 @@ class Fence {
 
   void resetFence();
 
-  void block(uint64_t timeout = UINT64_MAX);
+  void Block(uint64_t timeout = UINT64_MAX);
 
-  [[nodiscard]] auto getFence() const { return mFence; }
+  [[nodiscard]] auto GetFence() const { return mFence; }
 
  private:
   VkFence mFence{VK_NULL_HANDLE};

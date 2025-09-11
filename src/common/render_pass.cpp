@@ -20,20 +20,20 @@
 
 SubPass::~SubPass() {}
 
-void SubPass::addColorAttachmentReference(const VkAttachmentReference& ref) {
+void SubPass::AddColorAttachmentReference(const VkAttachmentReference& ref) {
   mColorAttachmentReferences.push_back(ref);
 }
 
-void SubPass::addInputAttachmentReference(const VkAttachmentReference& ref) {
+void SubPass::AddInputAttachmentReference(const VkAttachmentReference& ref) {
   mInputAttachmentReferences.push_back(ref);
 }
 
-void SubPass::setDepthStencilAttachmentReference(
+void SubPass::SetDepthStencilAttachmentReference(
     const VkAttachmentReference& ref) {
   mDepthStencilAttachmentReference = ref;
 }
 
-void SubPass::buildSubPassDescription() {
+void SubPass::BuildSubPassDescription() {
   if (mColorAttachmentReferences.empty()) {
     throw std::runtime_error("Error: color attachment group is empty!");
   }
@@ -57,23 +57,23 @@ RenderPass::RenderPass(const Device::Ptr& device) { mDevice = device; }
 
 RenderPass::~RenderPass() {
   if (mRenderPass != VK_NULL_HANDLE) {
-    vkDestroyRenderPass(mDevice->getDevice(), mRenderPass, nullptr);
+    vkDestroyRenderPass(mDevice->GetDevice(), mRenderPass, nullptr);
   }
 }
 
-void RenderPass::addSubPass(const SubPass& subpass) {
+void RenderPass::AddSubPass(const SubPass& subpass) {
   mSubPasses.push_back(subpass);
 }
 
-void RenderPass::addDependency(const VkSubpassDependency& dependency) {
+void RenderPass::AddDependency(const VkSubpassDependency& dependency) {
   mDependencies.push_back(dependency);
 }
 
-void RenderPass::addAttachment(const VkAttachmentDescription& attachmentDes) {
+void RenderPass::AddAttachment(const VkAttachmentDescription& attachmentDes) {
   mAttachmentDescriptions.push_back(attachmentDes);
 }
 
-void RenderPass::buildRenderPass() {
+void RenderPass::BuildRenderPass() {
   if (mSubPasses.empty() || mAttachmentDescriptions.empty() ||
       mDependencies.empty()) {
     throw std::runtime_error("Error: not enough elements to build renderPass");
@@ -82,7 +82,7 @@ void RenderPass::buildRenderPass() {
   // unwrap
   std::vector<VkSubpassDescription> subPasses{};
   for (int i = 0; i < mSubPasses.size(); ++i) {
-    subPasses.push_back(mSubPasses[i].getSubPassDescription());
+    subPasses.push_back(mSubPasses[i].GetSubPassDescription());
   }
 
   VkRenderPassCreateInfo createInfo{};
@@ -98,7 +98,7 @@ void RenderPass::buildRenderPass() {
   createInfo.subpassCount = static_cast<uint32_t>(subPasses.size());
   createInfo.pSubpasses = subPasses.data();
 
-  if (vkCreateRenderPass(mDevice->getDevice(), &createInfo, nullptr,
+  if (vkCreateRenderPass(mDevice->GetDevice(), &createInfo, nullptr,
                          &mRenderPass) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create renderPass");
   }

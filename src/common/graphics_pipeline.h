@@ -27,7 +27,7 @@
 class ShaderStageInfo {
  public:
   using Ptr = std::shared_ptr<ShaderStageInfo>;
-  static Ptr create(const Device::Ptr &device, const std::string &fileName,
+  static Ptr Create(const Device::Ptr &device, const std::string &fileName,
                     VkShaderStageFlagBits shaderStage,
                     const std::string &entryPoint) {
     return std::make_shared<ShaderStageInfo>(device, fileName, shaderStage,
@@ -40,13 +40,13 @@ class ShaderStageInfo {
 
   ~ShaderStageInfo();
 
-  [[nodiscard]] auto getShaderStage() const { return mShaderStage; }
-  [[nodiscard]] auto &getShaderEntryPoint() const { return mEntryPoint; }
-  [[nodiscard]] auto getShaderModule() const { return mShaderModule; }
-  [[nodiscard]] auto getShaderStageInfo() const { return mShaderStageInfo; }
+  [[nodiscard]] auto GetShaderStage() const { return mShaderStage; }
+  [[nodiscard]] auto &GetShaderEntryPoint() const { return mEntryPoint; }
+  [[nodiscard]] auto GetShaderModule() const { return mShaderModule; }
+  [[nodiscard]] auto GetShaderStageInfo() const { return mShaderStageInfo; }
 
  private:
-  void createShaderModule(const std::vector<char> &code);
+  void CreateShaderModule(const std::vector<char> &code);
 
  private:
   VkShaderModule mShaderModule{VK_NULL_HANDLE};
@@ -61,7 +61,7 @@ class ShaderStageInfo {
 class GraphicsPipeline {
  public:
   using Ptr = std::shared_ptr<GraphicsPipeline>;
-  static Ptr create(const Device::Ptr &device,
+  static Ptr Create(const Device::Ptr &device,
                     const RenderPass::Ptr &renderPass) {
     return std::make_shared<GraphicsPipeline>(device, renderPass);
   }
@@ -70,28 +70,28 @@ class GraphicsPipeline {
                    const RenderPass::Ptr &renderPass);
   ~GraphicsPipeline();
 
-  void setShaderStages(
+  void SetShaderStages(
       const std::vector<VkPipelineShaderStageCreateInfo> &shaderStages) {
     mShaderStages = shaderStages;
   }
 
-  void setViewports(const std::vector<VkViewport> &viewports) {
+  void SetViewports(const std::vector<VkViewport> &viewports) {
     mViewports = viewports;
   }
 
-  void setScissors(const std::vector<VkRect2D> &scissors) {
+  void SetScissors(const std::vector<VkRect2D> &scissors) {
     mScissors = scissors;
   }
 
-  void addBlendAttachment(
+  void AddBlendAttachment(
       const VkPipelineColorBlendAttachmentState &blendAttachment) {
     mBlendAttachmentStates.push_back(blendAttachment);
   }
 
-  void buildPipeline();
+  void BuildPipeline();
 
-  [[nodiscard]] auto getPipelineLayout() const { return mPipelineLayout; }
-  [[nodiscard]] auto getPipeline() const { return mGraphicsPipeline; }
+  [[nodiscard]] auto GetPipelineLayout() const { return mPipelineLayout; }
+  [[nodiscard]] auto GetPipeline() const { return mGraphicsPipeline; }
 
  public:
   VkPipelineVertexInputStateCreateInfo mVertexInputInfo{};

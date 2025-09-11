@@ -40,7 +40,7 @@ struct QueueFamilyIndices {
 class Device {
  public:
   using Ptr = std::shared_ptr<Device>;
-  static Ptr create(const Instance::Ptr &instance,
+  static Ptr Create(const Instance::Ptr &instance,
                     const WindowSurface::Ptr &windowSurface) {
     return std::make_shared<Device>(instance, windowSurface);
   }
@@ -50,25 +50,25 @@ class Device {
 
   ~Device();
 
-  void pickPhysicalDevice();
+  void PickPhysicalDevice();
 
-  bool isDeviceSuitable(VkPhysicalDevice device);
+  bool IsDeviceSuitable(VkPhysicalDevice device);
 
-  int rateDeviceSuitability(VkPhysicalDevice device);
+  int RateDeviceSuitability(VkPhysicalDevice device);
 
-  void findQueueFamilies(VkPhysicalDevice device);
+  void FindQueueFamilies(VkPhysicalDevice device);
 
-  void createLogicalDevice();
+  void CreateLogicalDevice();
 
-  bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+  bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
-  [[nodiscard]] auto getDevice() const { return mDevice; }
-  [[nodiscard]] auto getPhysicalDevice() const { return mPhysicalDevice; }
-  [[nodiscard]] auto getQueueFamilyIndices() const {
+  [[nodiscard]] auto GetDevice() const { return mDevice; }
+  [[nodiscard]] auto GetPhysicalDevice() const { return mPhysicalDevice; }
+  [[nodiscard]] auto GetQueueFamilyIndices() const {
     return mQueueFamilyIndices;
   }
-  [[nodiscard]] auto getGraphicsQueue() const { return mGraphicsQueue; }
-  [[nodiscard]] auto getPresentQueue() const { return mPresentQueue; }
+  [[nodiscard]] auto GetGraphicsQueue() const { return mGraphicsQueue; }
+  [[nodiscard]] auto GetPresentQueue() const { return mPresentQueue; }
 
  private:
   VkPhysicalDevice mPhysicalDevice{VK_NULL_HANDLE};

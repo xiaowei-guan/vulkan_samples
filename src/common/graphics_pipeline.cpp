@@ -49,7 +49,7 @@ ShaderStageInfo::ShaderStageInfo(const Device::Ptr &device,
 
   // 1. Create shader module.
   std::vector<char> codeBuffer = readFile(fileName);
-  createShaderModule(codeBuffer);
+  CreateShaderModule(codeBuffer);
 
   // 2. Shader stage creation.
   // Assign shaders to a specific pipeline stage.
@@ -61,20 +61,20 @@ ShaderStageInfo::ShaderStageInfo(const Device::Ptr &device,
 
 ShaderStageInfo::~ShaderStageInfo() {
   if (mShaderModule != VK_NULL_HANDLE) {
-    vkDestroyShaderModule(mDevice->getDevice(), mShaderModule, nullptr);
+    vkDestroyShaderModule(mDevice->GetDevice(), mShaderModule, nullptr);
   }
 }
 
 // Before we can pass the codeBuffer to the pipeline, we have to wrap it in a
 // VkShaderModule object.
-void ShaderStageInfo::createShaderModule(const std::vector<char> &codeBuffer) {
+void ShaderStageInfo::CreateShaderModule(const std::vector<char> &codeBuffer) {
   VkShaderModuleCreateInfo shaderCreateInfo{};
   shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   shaderCreateInfo.codeSize = codeBuffer.size();
   shaderCreateInfo.pCode =
       reinterpret_cast<const uint32_t *>(codeBuffer.data());
 
-  if (vkCreateShaderModule(mDevice->getDevice(), &shaderCreateInfo, nullptr,
+  if (vkCreateShaderModule(mDevice->GetDevice(), &shaderCreateInfo, nullptr,
                            &mShaderModule) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create shader");
   }
@@ -101,18 +101,18 @@ GraphicsPipeline::GraphicsPipeline(const Device::Ptr &device,
 
 GraphicsPipeline::~GraphicsPipeline() {
   if (mGraphicsPipeline != VK_NULL_HANDLE) {
-    vkDestroyPipeline(mDevice->getDevice(), mGraphicsPipeline, nullptr);
+    vkDestroyPipeline(mDevice->GetDevice(), mGraphicsPipeline, nullptr);
   }
 
   if (mPipelineLayout != VK_NULL_HANDLE) {
-    vkDestroyPipelineLayout(mDevice->getDevice(), mPipelineLayout, nullptr);
+    vkDestroyPipelineLayout(mDevice->GetDevice(), mPipelineLayout, nullptr);
   }
 
   mDevice.reset();
   mRenderPass.reset();
 }
 
-void GraphicsPipeline::buildPipeline() {
+void GraphicsPipeline::BuildPipeline() {
   // 2.4.Viewports and scissors.
   mViewportState.viewportCount = static_cast<uint32_t>(mViewports.size());
   mViewportState.pViewports = mViewports.data();
@@ -126,10 +126,10 @@ void GraphicsPipeline::buildPipeline() {
 
   // 3.Pipeline layout.
   if (mPipelineLayout != VK_NULL_HANDLE) {
-    vkDestroyPipelineLayout(mDevice->getDevice(), mPipelineLayout, nullptr);
+    vkDestroyPipelineLayout(mDevice->GetDevice(), mPipelineLayout, nullptr);
   }
 
-  if (vkCreatePipelineLayout(mDevice->getDevice(), &mPipelineLayoutInfo,
+  if (vkCreatePipelineLayout(mDevice->GetDevice(), &mPipelineLayoutInfo,
                              nullptr, &mPipelineLayout) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create pipeline layout!");
   }
@@ -150,17 +150,17 @@ void GraphicsPipeline::buildPipeline() {
   pipelineInfo.pColorBlendState = &mColorBlending;
   // pipelineInfo.pDynamicState = &dynamicState;
   pipelineInfo.layout = mPipelineLayout;
-  pipelineInfo.renderPass = mRenderPass->getRenderPass();
+  pipelineInfo.renderPass = mRenderPass->GetRenderPass();
   pipelineInfo.subpass = 0;
 
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;  // Optional
   pipelineInfo.basePipelineIndex = -1;               // Optional
 
   if (mGraphicsPipeline != VK_NULL_HANDLE) {
-    vkDestroyPipeline(mDevice->getDevice(), mGraphicsPipeline, nullptr);
+    vkDestroyPipeline(mDevice->GetDevice(), mGraphicsPipeline, nullptr);
   }
 
-  if (vkCreateGraphicsPipelines(mDevice->getDevice(), VK_NULL_HANDLE, 1,
+  if (vkCreateGraphicsPipelines(mDevice->GetDevice(), VK_NULL_HANDLE, 1,
                                 &pipelineInfo, nullptr,
                                 &mGraphicsPipeline) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create graphics pipeline!");

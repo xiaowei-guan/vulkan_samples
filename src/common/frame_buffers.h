@@ -27,7 +27,7 @@
 class FrameBuffers {
  public:
   using Ptr = std::shared_ptr<FrameBuffers>;
-  static Ptr create(const Device::Ptr &device, const SwapChain::Ptr &swapChain,
+  static Ptr Create(const Device::Ptr &device, const SwapChain::Ptr &swapChain,
                     const RenderPass::Ptr &renderPass) {
     return std::make_shared<FrameBuffers>(device, swapChain, renderPass);
   }
@@ -36,7 +36,7 @@ class FrameBuffers {
                const RenderPass::Ptr &renderPass);
   ~FrameBuffers();
 
-  [[nodiscard]] auto getFrameBuffer(const size_t index) const {
+  [[nodiscard]] auto GetFrameBuffer(const size_t index) const {
     return mSwapChainFramebuffers[index];
   }
 

@@ -26,14 +26,14 @@
 class WindowSurface {
  public:
   using Ptr = std::shared_ptr<WindowSurface>;
-  static Ptr create(const Instance::Ptr &instance, const Window::Ptr &window) {
+  static Ptr Create(const Instance::Ptr &instance, const Window::Ptr &window) {
     return std::make_shared<WindowSurface>(instance, window);
   }
 
   WindowSurface(const Instance::Ptr &instance, const Window::Ptr &window);
   ~WindowSurface();
 
-  [[nodiscard]] auto getSurface() const { return mSurface; }
+  [[nodiscard]] auto GetSurface() const { return mSurface; }
 
  private:
   // To present rendered images to. WIll be backed by the window that opened

@@ -33,14 +33,14 @@ class Instance {
 
   ~Instance();
 
-  void checkExtensionSupport();
-  std::vector<const char *> getRequiredExtensions();
+  void CheckExtensionSupport();
+  std::vector<const char *> GetRequiredExtensions();
 
-  bool checkValidationLayerSupport();
-  void setupDebugger();
+  bool CheckValidationLayerSupport();
+  void SetupDebugger();
 
-  [[nodiscard]] VkInstance getInstance() const { return mInstance; }
-  [[nodiscard]] bool isValidationLayerEnabled() const {
+  [[nodiscard]] VkInstance GetInstance() const { return mInstance; }
+  [[nodiscard]] bool IsValidationLayerEnabled() const {
     return mEnableValidationLayer;
   }
 

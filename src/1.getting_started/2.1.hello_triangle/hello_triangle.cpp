@@ -8,61 +8,61 @@ void HelloTriangleApplication::Run() {
 }
 
 void HelloTriangleApplication::InitWindow() {
-  mWindow = Window::create(WIDTH, HEIGHT);
+  mWindow = Window::Create(WIDTH, HEIGHT);
 }
 
 void HelloTriangleApplication::InitVulkan() {
   mInstance = Instance::create(true);
   // The window surface can actually influence the physical device selection.
   // So we create it after the instance creation.
-  mSurface = WindowSurface::create(mInstance, mWindow);
-  mDevice = Device::create(mInstance, mSurface);
-  mSwapChain = SwapChain::create(mDevice, mSurface, mWindow);
+  mSurface = WindowSurface::Create(mInstance, mWindow);
+  mDevice = Device::Create(mInstance, mSurface);
+  mSwapChain = SwapChain::Create(mDevice, mSurface, mWindow);
 
-  mRenderPass = RenderPass::create(mDevice);
+  mRenderPass = RenderPass::Create(mDevice);
   CreateRenderPass();
-  mGraphicsPipeline = GraphicsPipeline::create(mDevice, mRenderPass);
+  mGraphicsPipeline = GraphicsPipeline::Create(mDevice, mRenderPass);
   CreatePipeline();
 
-  mFrameBuffers = FrameBuffers::create(mDevice, mSwapChain, mRenderPass);
-  mCommandPool = CommandPool::create(mDevice);
+  mFrameBuffers = FrameBuffers::Create(mDevice, mSwapChain, mRenderPass);
+  mCommandPool = CommandPool::Create(mDevice);
 
-  mCommandBuffers.resize(mSwapChain->getSwapChainImageCount());
-  for (int i = 0; i < mSwapChain->getSwapChainImageCount(); ++i) {
-    mCommandBuffers[i] = CommandBuffer::create(mDevice, mCommandPool);
+  mCommandBuffers.resize(mSwapChain->GetSwapChainImageCount());
+  for (int i = 0; i < mSwapChain->GetSwapChainImageCount(); ++i) {
+    mCommandBuffers[i] = CommandBuffer::Create(mDevice, mCommandPool);
 
-    mCommandBuffers[i]->begin();
+    mCommandBuffers[i]->Begin();
 
     VkRenderPassBeginInfo renderBeginInfo{};
     renderBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderBeginInfo.renderPass = mRenderPass->getRenderPass();
-    renderBeginInfo.framebuffer = mFrameBuffers->getFrameBuffer(i);
+    renderBeginInfo.renderPass = mRenderPass->GetRenderPass();
+    renderBeginInfo.framebuffer = mFrameBuffers->GetFrameBuffer(i);
     renderBeginInfo.renderArea.offset = {0, 0};
-    renderBeginInfo.renderArea.extent = mSwapChain->getSwapChainExtent();
+    renderBeginInfo.renderArea.extent = mSwapChain->GetSwapChainExtent();
 
     VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
     renderBeginInfo.clearValueCount = 1;
     renderBeginInfo.pClearValues = &clearColor;
 
-    mCommandBuffers[i]->beginRenderPass(renderBeginInfo);
+    mCommandBuffers[i]->BeginRenderPass(renderBeginInfo);
 
-    mCommandBuffers[i]->bindGraphicPipeline(mGraphicsPipeline->getPipeline());
+    mCommandBuffers[i]->BindGraphicPipeline(mGraphicsPipeline->GetPipeline());
 
-    mCommandBuffers[i]->draw(3);
+    mCommandBuffers[i]->Draw(3);
 
-    mCommandBuffers[i]->endRenderPass();
+    mCommandBuffers[i]->EndRenderPass();
 
-    mCommandBuffers[i]->end();
+    mCommandBuffers[i]->End();
   }
 
-  for (int i = 0; i < mSwapChain->getSwapChainImageCount(); ++i) {
-    auto imageSemaphore = Semaphore::create(mDevice);
+  for (int i = 0; i < mSwapChain->GetSwapChainImageCount(); ++i) {
+    auto imageSemaphore = Semaphore::Create(mDevice);
     mImageAvailableSemaphores.push_back(imageSemaphore);
 
-    auto renderSemaphore = Semaphore::create(mDevice);
+    auto renderSemaphore = Semaphore::Create(mDevice);
     mRenderFinishedSemaphores.push_back(renderSemaphore);
 
-    auto fence = Fence::create(mDevice);
+    auto fence = Fence::Create(mDevice);
     mFences.push_back(fence);
   }
 }
@@ -70,7 +70,7 @@ void HelloTriangleApplication::InitVulkan() {
 void HelloTriangleApplication::CreateRenderPass() {
   // 1.Attachment description.
   VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = mSwapChain->getSwapChainImageFormat();
+  colorAttachment.format = mSwapChain->GetSwapChainImageFormat();
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -79,7 +79,7 @@ void HelloTriangleApplication::CreateRenderPass() {
   colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-  mRenderPass->addAttachment(colorAttachment);
+  mRenderPass->AddAttachment(colorAttachment);
 
   // 2.Subpasses and attachment references.
   VkAttachmentReference colorAttachmentRef{};
@@ -87,10 +87,10 @@ void HelloTriangleApplication::CreateRenderPass() {
   colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
   SubPass subpass{};
-  subpass.addColorAttachmentReference(colorAttachmentRef);
-  subpass.buildSubPassDescription();
+  subpass.AddColorAttachmentReference(colorAttachmentRef);
+  subpass.BuildSubPassDescription();
 
-  mRenderPass->addSubPass(subpass);
+  mRenderPass->AddSubPass(subpass);
 
   // 3.Subpass dependencies.
   VkSubpassDependency dependency{};
@@ -102,10 +102,10 @@ void HelloTriangleApplication::CreateRenderPass() {
   dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
                              VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-  mRenderPass->addDependency(dependency);
+  mRenderPass->AddDependency(dependency);
 
   // 4.Render pass
-  mRenderPass->buildRenderPass();
+  mRenderPass->BuildRenderPass();
 }
 
 void HelloTriangleApplication::CreatePipeline() {
@@ -113,15 +113,15 @@ void HelloTriangleApplication::CreatePipeline() {
   // programmable stages of the graphics pipeline.
   std::vector<VkPipelineShaderStageCreateInfo> shaderStages{};
 
-  auto vertShaderStageInfo = ShaderStageInfo::create(
+  auto vertShaderStageInfo = ShaderStageInfo::Create(
       mDevice, "./data/2.1.hello_triangle/shader.vert.spv", VK_SHADER_STAGE_VERTEX_BIT, "main");
-  shaderStages.push_back(vertShaderStageInfo->getShaderStageInfo());
+  shaderStages.push_back(vertShaderStageInfo->GetShaderStageInfo());
 
-  auto fragShaderStageInfo = ShaderStageInfo::create(
+  auto fragShaderStageInfo = ShaderStageInfo::Create(
       mDevice, "./data/2.1.hello_triangle/shader.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT, "main");
-  shaderStages.push_back(fragShaderStageInfo->getShaderStageInfo());
+  shaderStages.push_back(fragShaderStageInfo->GetShaderStageInfo());
 
-  mGraphicsPipeline->setShaderStages(shaderStages);
+  mGraphicsPipeline->SetShaderStages(shaderStages);
 
   // 2.Fixed-function state: all of the structures that define the
   // fixed-function stages of the pipeline
@@ -159,19 +159,19 @@ void HelloTriangleApplication::CreatePipeline() {
   VkViewport viewport{};
   viewport.x = 0.0f;
   viewport.y = 0.0f;
-  viewport.width = (float)mSwapChain->getSwapChainExtent().width;
-  viewport.height = (float)mSwapChain->getSwapChainExtent().height;
+  viewport.width = (float)mSwapChain->GetSwapChainExtent().width;
+  viewport.height = (float)mSwapChain->GetSwapChainExtent().height;
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
 
   // Scissor rectangles define in which regions pixels will actually be stored.
   VkRect2D scissor{};
   scissor.offset = {0, 0};
-  scissor.extent = mSwapChain->getSwapChainExtent();
+  scissor.extent = mSwapChain->GetSwapChainExtent();
 
   // Set the viewport and scissor in pipeline.
-  mGraphicsPipeline->setViewports({viewport});
-  mGraphicsPipeline->setScissors({scissor});
+  mGraphicsPipeline->SetViewports({viewport});
+  mGraphicsPipeline->SetScissors({scissor});
 
   // 2.5.Rasterizer.
   // The rasterizer takes the geometry that is shaped by the vertices from the
@@ -231,7 +231,7 @@ void HelloTriangleApplication::CreatePipeline() {
   colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
   colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
-  mGraphicsPipeline->addBlendAttachment(colorBlendAttachment);
+  mGraphicsPipeline->AddBlendAttachment(colorBlendAttachment);
 
   // 2.8.2 'VkPipelineColorBlendStateCreateInfo' contains the global color
   // blending settings
@@ -257,26 +257,26 @@ void HelloTriangleApplication::CreatePipeline() {
       nullptr;  // Optional
 
   // 4.Create pipeline
-  mGraphicsPipeline->buildPipeline();
+  mGraphicsPipeline->BuildPipeline();
 }
 
 void HelloTriangleApplication::MainLoop() {
-  while (!mWindow->windowShouldClose()) {
-    mWindow->pollEvents();
+  while (!mWindow->WindowShouldClose()) {
+    mWindow->PollEvents();
     DrawFrame();
   }
 
-  vkDeviceWaitIdle(mDevice->getDevice());
+  vkDeviceWaitIdle(mDevice->GetDevice());
 }
 
 void HelloTriangleApplication::DrawFrame() {
-  mFences[mCurrentFrame]->block();
+  mFences[mCurrentFrame]->Block();
 
   // Acquiring an image from the swap chain.
   uint32_t imageIndex{0};
   vkAcquireNextImageKHR(
-      mDevice->getDevice(), mSwapChain->getSwapChain(), UINT64_MAX,
-      mImageAvailableSemaphores[mCurrentFrame]->getSemaphore(), VK_NULL_HANDLE,
+      mDevice->GetDevice(), mSwapChain->GetSwapChain(), UINT64_MAX,
+      mImageAvailableSemaphores[mCurrentFrame]->GetSemaphore(), VK_NULL_HANDLE,
       &imageIndex);
 
   // Submitting the command buffer.
@@ -284,25 +284,25 @@ void HelloTriangleApplication::DrawFrame() {
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
   VkSemaphore waitSemaphores[] = {
-      mImageAvailableSemaphores[mCurrentFrame]->getSemaphore()};
+      mImageAvailableSemaphores[mCurrentFrame]->GetSemaphore()};
   VkPipelineStageFlags waitStages[] = {
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
   submitInfo.waitSemaphoreCount = 1;
   submitInfo.pWaitSemaphores = waitSemaphores;
   submitInfo.pWaitDstStageMask = waitStages;
 
-  auto commandBuffer = mCommandBuffers[imageIndex]->getCommandBuffer();
+  auto commandBuffer = mCommandBuffers[imageIndex]->GetCommandBuffer();
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &commandBuffer;
 
   VkSemaphore signalSemaphores[] = {
-      mRenderFinishedSemaphores[mCurrentFrame]->getSemaphore()};
+      mRenderFinishedSemaphores[mCurrentFrame]->GetSemaphore()};
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = signalSemaphores;
 
   mFences[mCurrentFrame]->resetFence();
-  if (vkQueueSubmit(mDevice->getGraphicsQueue(), 1, &submitInfo,
-                    mFences[mCurrentFrame]->getFence()) != VK_SUCCESS) {
+  if (vkQueueSubmit(mDevice->GetGraphicsQueue(), 1, &submitInfo,
+                    mFences[mCurrentFrame]->GetFence()) != VK_SUCCESS) {
     throw std::runtime_error("failed to submit draw command buffer!");
   }
 
@@ -313,16 +313,16 @@ void HelloTriangleApplication::DrawFrame() {
   presentInfo.waitSemaphoreCount = 1;
   presentInfo.pWaitSemaphores = signalSemaphores;
 
-  VkSwapchainKHR swapChains[] = {mSwapChain->getSwapChain()};
+  VkSwapchainKHR swapChains[] = {mSwapChain->GetSwapChain()};
   presentInfo.swapchainCount = 1;
   presentInfo.pSwapchains = swapChains;
 
   presentInfo.pImageIndices = &imageIndex;
 
-  vkQueuePresentKHR(mDevice->getPresentQueue(), &presentInfo);
+  vkQueuePresentKHR(mDevice->GetPresentQueue(), &presentInfo);
 
   // update current frame index
-  mCurrentFrame = (mCurrentFrame + 1) % mSwapChain->getSwapChainImageCount();
+  mCurrentFrame = (mCurrentFrame + 1) % mSwapChain->GetSwapChainImageCount();
 }
 
 void HelloTriangleApplication::CleanUp() {

@@ -41,6 +41,6 @@ Window::~Window() {
   glfwTerminate();
 }
 
-bool Window::windowShouldClose() { return glfwWindowShouldClose(mWindow); }
+bool Window::WindowShouldClose() { return glfwWindowShouldClose(mWindow); }
 
-void Window::pollEvents() { return glfwPollEvents(); }
+void Window::PollEvents() { return glfwPollEvents(); }

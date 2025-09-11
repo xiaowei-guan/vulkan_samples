@@ -21,13 +21,13 @@
 WindowSurface::WindowSurface(const Instance::Ptr &instance,
                              const Window::Ptr &window) {
   mInstance = instance;
-  if (glfwCreateWindowSurface(mInstance->getInstance(), window->getWindow(),
+  if (glfwCreateWindowSurface(mInstance->GetInstance(), window->GetWindow(),
                               nullptr, &mSurface) != VK_SUCCESS) {
     throw std::runtime_error("Error: Failed to create window surface!");
   }
 }
 
 WindowSurface::~WindowSurface() {
-  vkDestroySurfaceKHR(mInstance->getInstance(), mSurface, nullptr);
+  vkDestroySurfaceKHR(mInstance->GetInstance(), mSurface, nullptr);
   mInstance.reset();
 }

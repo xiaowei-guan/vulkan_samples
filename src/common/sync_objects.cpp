@@ -22,7 +22,7 @@ Semaphore::Semaphore(const Device::Ptr &device) {
   VkSemaphoreCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-  if (vkCreateSemaphore(mDevice->getDevice(), &createInfo, nullptr,
+  if (vkCreateSemaphore(mDevice->GetDevice(), &createInfo, nullptr,
                         &mSemaphore) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create Semaphore");
   }
@@ -30,7 +30,7 @@ Semaphore::Semaphore(const Device::Ptr &device) {
 
 Semaphore::~Semaphore() {
   if (mSemaphore != VK_NULL_HANDLE) {
-    vkDestroySemaphore(mDevice->getDevice(), mSemaphore, nullptr);
+    vkDestroySemaphore(mDevice->GetDevice(), mSemaphore, nullptr);
   }
 }
 
@@ -41,7 +41,7 @@ Fence::Fence(const Device::Ptr &device, bool signaled) {
   createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
   createInfo.flags = signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
 
-  if (vkCreateFence(mDevice->getDevice(), &createInfo, nullptr, &mFence) !=
+  if (vkCreateFence(mDevice->GetDevice(), &createInfo, nullptr, &mFence) !=
       VK_SUCCESS) {
     throw std::runtime_error("Error:failed to create fence");
   }
@@ -49,12 +49,12 @@ Fence::Fence(const Device::Ptr &device, bool signaled) {
 
 Fence::~Fence() {
   if (mFence != VK_NULL_HANDLE) {
-    vkDestroyFence(mDevice->getDevice(), mFence, nullptr);
+    vkDestroyFence(mDevice->GetDevice(), mFence, nullptr);
   }
 }
 
-void Fence::resetFence() { vkResetFences(mDevice->getDevice(), 1, &mFence); }
+void Fence::resetFence() { vkResetFences(mDevice->GetDevice(), 1, &mFence); }
 
-void Fence::block(uint64_t timeout) {
-  vkWaitForFences(mDevice->getDevice(), 1, &mFence, VK_TRUE, timeout);
+void Fence::Block(uint64_t timeout) {
+  vkWaitForFences(mDevice->GetDevice(), 1, &mFence, VK_TRUE, timeout);
 }

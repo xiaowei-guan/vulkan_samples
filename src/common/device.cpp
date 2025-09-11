@@ -32,9 +32,9 @@ Device::Device(const Instance::Ptr &instance,
                const WindowSurface::Ptr &windowSurface) {
   mInstance = instance;
   mWindowSurface = windowSurface;
-  pickPhysicalDevice();
-  findQueueFamilies(mPhysicalDevice);
-  createLogicalDevice();
+  PickPhysicalDevice();
+  FindQueueFamilies(mPhysicalDevice);
+  CreateLogicalDevice();
 }
 
 Device::~Device() {
@@ -43,28 +43,28 @@ Device::~Device() {
   mInstance.reset();
 }
 
-void Device::pickPhysicalDevice() {
+void Device::PickPhysicalDevice() {
   uint32_t deviceCount = 0;
-  vkEnumeratePhysicalDevices(mInstance->getInstance(), &deviceCount, nullptr);
+  vkEnumeratePhysicalDevices(mInstance->GetInstance(), &deviceCount, nullptr);
   if (deviceCount == 0) {
     throw std::runtime_error("Error:failed to emumerate physical devices!");
   }
 
   std::vector<VkPhysicalDevice> devices(deviceCount);
-  vkEnumeratePhysicalDevices(mInstance->getInstance(), &deviceCount,
+  vkEnumeratePhysicalDevices(mInstance->GetInstance(), &deviceCount,
                              devices.data());
 
   // Use an ordered map to automatically sort candidates by increasing score
   std::multimap<int, VkPhysicalDevice> candidates;
 
   for (const auto &device : devices) {
-    int score = rateDeviceSuitability(device);
+    int score = RateDeviceSuitability(device);
     candidates.insert(std::make_pair(score, device));
   }
 
   // Check if the best candidate is suitable at all
   if (candidates.rbegin()->first > 0 &&
-      isDeviceSuitable(candidates.rbegin()->second)) {
+      IsDeviceSuitable(candidates.rbegin()->second)) {
     mPhysicalDevice = candidates.rbegin()->second;
   }
 
@@ -74,7 +74,7 @@ void Device::pickPhysicalDevice() {
 }
 
 // Support for swapChain.  Now.
-bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+bool Device::CheckDeviceExtensionSupport(VkPhysicalDevice device) {
   uint32_t extensionCount;
   vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
                                        nullptr);
@@ -93,7 +93,7 @@ bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device) {
   return requiredExtensions.empty();
 }
 
-bool Device::isDeviceSuitable(VkPhysicalDevice device) {
+bool Device::IsDeviceSuitable(VkPhysicalDevice device) {
   // Base devices suitability check.
   VkPhysicalDeviceProperties deviceProperties;
   VkPhysicalDeviceFeatures deviceFeatures;
@@ -105,7 +105,7 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) {
 }
 
 // Give each deivce a score and pick the highest one.
-int Device::rateDeviceSuitability(VkPhysicalDevice device) {
+int Device::RateDeviceSuitability(VkPhysicalDevice device) {
   int score = 0;
   VkPhysicalDeviceProperties deviceProperties;
   VkPhysicalDeviceFeatures deviceFeatures;
@@ -128,7 +128,7 @@ int Device::rateDeviceSuitability(VkPhysicalDevice device) {
 // Anything from drawing to uploading textures, requires commands to be
 // submitted to a queue. So now querying the available queue families.   After
 // that, specify which queues to create.
-void Device::findQueueFamilies(VkPhysicalDevice device) {
+void Device::FindQueueFamilies(VkPhysicalDevice device) {
   uint32_t queueFamilyCount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
@@ -145,7 +145,7 @@ void Device::findQueueFamilies(VkPhysicalDevice device) {
 
     VkBool32 presentSupport = false;
     vkGetPhysicalDeviceSurfaceSupportKHR(
-        device, i, mWindowSurface->getSurface(), &presentSupport);
+        device, i, mWindowSurface->GetSurface(), &presentSupport);
     if (presentSupport) {
       mQueueFamilyIndices.presentFamily = i;
     }
@@ -158,7 +158,7 @@ void Device::findQueueFamilies(VkPhysicalDevice device) {
   }
 }
 
-void Device::createLogicalDevice() {
+void Device::CreateLogicalDevice() {
   // Specifying the queues to be created.
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
   std::set<uint32_t> uniqueQueueFamilies = {
@@ -195,7 +195,7 @@ void Device::createLogicalDevice() {
       static_cast<uint32_t>(deviceExtensions.size());
   createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-  if (mInstance->isValidationLayerEnabled()) {
+  if (mInstance->IsValidationLayerEnabled()) {
     createInfo.enabledLayerCount =
         static_cast<uint32_t>(validationLayers.size());
     createInfo.ppEnabledLayerNames = validationLayers.data();

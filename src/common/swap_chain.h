@@ -33,7 +33,7 @@ struct SwapChainSupportDetails {
 class SwapChain {
  public:
   using Ptr = std::shared_ptr<SwapChain>;
-  static Ptr create(const Device::Ptr &device,
+  static Ptr Create(const Device::Ptr &device,
                     const WindowSurface::Ptr &surface,
                     const Window::Ptr &window) {
     return std::make_shared<SwapChain>(device, surface, window);
@@ -44,32 +44,32 @@ class SwapChain {
 
   ~SwapChain();
 
-  SwapChainSupportDetails querySwapChainSupport();
+  SwapChainSupportDetails QuerySwapChainSupport();
 
-  VkSurfaceFormatKHR chooseSwapSurfaceFormat(
+  VkSurfaceFormatKHR ChooseSwapSurfaceFormat(
       const std::vector<VkSurfaceFormatKHR> &availableFormats);
 
-  VkPresentModeKHR chooseSwapPresentMode(
+  VkPresentModeKHR ChooseSwapPresentMode(
       const std::vector<VkPresentModeKHR> &availablePresentModes);
 
-  VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+  VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
-  [[nodiscard]] auto getSwapChainExtent() const { return mSwapChainExtent; }
+  [[nodiscard]] auto GetSwapChainExtent() const { return mSwapChainExtent; }
 
-  [[nodiscard]] auto getSwapChainImageFormat() const {
+  [[nodiscard]] auto GetSwapChainImageFormat() const {
     return mSwapChainImageFormat;
   }
 
-  [[nodiscard]] auto getSwapChainImageCount() const { return mImageCount; }
+  [[nodiscard]] auto GetSwapChainImageCount() const { return mImageCount; }
 
-  [[nodiscard]] auto getSwapChainImageView(const int index) const {
+  [[nodiscard]] auto GetSwapChainImageView(const int index) const {
     return mSwapChainImageViews[index];
   }
 
-  [[nodiscard]] auto getSwapChain() const { return mSwapChain; }
+  [[nodiscard]] auto GetSwapChain() const { return mSwapChain; }
 
  private:
-  void createImageViews();
+  void CreateImageViews();
 
  private:
   Device::Ptr mDevice{nullptr};
