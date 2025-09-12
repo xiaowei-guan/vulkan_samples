@@ -18,16 +18,15 @@
 
 #include <stdexcept>
 
-WindowSurface::WindowSurface(const Instance::Ptr &instance,
-                             const Window::Ptr &window) {
-  mInstance = instance;
-  if (glfwCreateWindowSurface(mInstance->GetInstance(), window->GetWindow(),
-                              nullptr, &mSurface) != VK_SUCCESS) {
+WindowSurface::WindowSurface(const std::shared_ptr<Instance> &instance,
+                             const std::shared_ptr<Window> &window) {
+  instance_ = instance;
+  if (glfwCreateWindowSurface(instance_->GetInstance(), window->GetWindow(),
+                              nullptr, &vk_surface_) != VK_SUCCESS) {
     throw std::runtime_error("Error: Failed to create window surface!");
   }
 }
 
 WindowSurface::~WindowSurface() {
-  vkDestroySurfaceKHR(mInstance->GetInstance(), mSurface, nullptr);
-  mInstance.reset();
+  vkDestroySurfaceKHR(instance_->GetInstance(), vk_surface_, nullptr);
 }

@@ -65,9 +65,9 @@ static void DestroyDebugUtilsMessengerEXT(
 }
 
 Instance::Instance(bool enableValidationLayer) {
-  mEnableValidationLayer = enableValidationLayer;
+  enable_validation_layer_ = enableValidationLayer;
 
-  if (mEnableValidationLayer && !CheckValidationLayerSupport()) {
+  if (enable_validation_layer_ && !CheckValidationLayerSupport()) {
     throw std::runtime_error("Error: validation layer is not supported");
   }
 
@@ -93,7 +93,7 @@ Instance::Instance(bool enableValidationLayer) {
 
   // Set validation layer info.
   VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
-  if (mEnableValidationLayer) {
+  if (enable_validation_layer_) {
     instCreateInfo.enabledLayerCount =
         static_cast<uint32_t>(validationLayers.size());
     instCreateInfo.ppEnabledLayerNames = validationLayers.data();
@@ -113,7 +113,7 @@ Instance::Instance(bool enableValidationLayer) {
     instCreateInfo.enabledLayerCount = 0;
   }
 
-  if (vkCreateInstance(&instCreateInfo, nullptr, &mInstance) != VK_SUCCESS) {
+  if (vkCreateInstance(&instCreateInfo, nullptr, &instance_) != VK_SUCCESS) {
     throw std::runtime_error("Error:failed to create instance");
   }
 
@@ -121,10 +121,10 @@ Instance::Instance(bool enableValidationLayer) {
 }
 
 Instance::~Instance() {
-  if (mEnableValidationLayer) {
-    DestroyDebugUtilsMessengerEXT(mInstance, mDebugger, nullptr);
+  if (enable_validation_layer_) {
+    DestroyDebugUtilsMessengerEXT(instance_, debuger_, nullptr);
   }
-  vkDestroyInstance(mInstance, nullptr);
+  vkDestroyInstance(instance_, nullptr);
 }
 
 void Instance::CheckExtensionSupport() {
@@ -151,7 +151,7 @@ std::vector<const char *> Instance::GetRequiredExtensions() {
   std::vector<const char *> extensions(glfwExtensions,
                                        glfwExtensions + glfwExtensionCount);
 
-  if (mEnableValidationLayer) {
+  if (enable_validation_layer_) {
     // Set up a debug messenger with a callback using this extension.
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
   }
@@ -187,7 +187,7 @@ bool Instance::CheckValidationLayerSupport() {
 // If not set, the validation layers will print debug messages to the standard
 // output by default. If set, we can handle debug messages in our program.
 void Instance::SetupDebugger() {
-  if (!mEnableValidationLayer) {
+  if (!enable_validation_layer_) {
     return;
   }
 
@@ -202,8 +202,8 @@ void Instance::SetupDebugger() {
   createInfo.pfnUserCallback = debugCallBack;
   createInfo.pUserData = nullptr;  // Optional
 
-  if (CreateDebugUtilsMessengerEXT(mInstance, &createInfo, nullptr,
-                                   &mDebugger) != VK_SUCCESS) {
+  if (CreateDebugUtilsMessengerEXT(instance_, &createInfo, nullptr,
+                                   &debuger_) != VK_SUCCESS) {
     throw std::runtime_error("Error:failed to create debugger");
   }
 }

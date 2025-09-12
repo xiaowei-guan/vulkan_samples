@@ -17,8 +17,8 @@
 #ifndef COMMON_RENDER_PASS_H_
 #define COMMON_RENDER_PASS_H_
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "common/device.h"
 
@@ -35,25 +35,19 @@ class SubPass {
   void BuildSubPassDescription();
 
   [[nodiscard]] auto GetSubPassDescription() const {
-    return mSubPassDescription;
+    return vk_subpass_description_;
   }
 
  private:
-  VkSubpassDescription mSubPassDescription{};
-  std::vector<VkAttachmentReference> mColorAttachmentReferences{};
-  std::vector<VkAttachmentReference> mInputAttachmentReferences{};
-  VkAttachmentReference mDepthStencilAttachmentReference{};
+  VkSubpassDescription vk_subpass_description_;
+  std::vector<VkAttachmentReference> color_attachment_references_;
+  std::vector<VkAttachmentReference> input_attachment_references_;
+  VkAttachmentReference depth_stencil_attachment_reference_;
 };
 
 class RenderPass {
  public:
-  using Ptr = std::shared_ptr<RenderPass>;
-
-  static Ptr Create(const Device::Ptr &device) {
-    return std::make_shared<RenderPass>(device);
-  }
-
-  explicit RenderPass(const Device::Ptr &device);
+  explicit RenderPass(const std::shared_ptr<Device> &device);
 
   ~RenderPass();
 
@@ -65,16 +59,14 @@ class RenderPass {
 
   void BuildRenderPass();
 
-  [[nodiscard]] auto GetRenderPass() const { return mRenderPass; }
+  [[nodiscard]] auto GetRenderPass() const { return vk_render_pass_; }
 
  private:
-  VkRenderPass mRenderPass{VK_NULL_HANDLE};
-
-  std::vector<SubPass> mSubPasses{};
-  std::vector<VkSubpassDependency> mDependencies{};
-  std::vector<VkAttachmentDescription> mAttachmentDescriptions{};
-
-  Device::Ptr mDevice{nullptr};
+  VkRenderPass vk_render_pass_ = VK_NULL_HANDLE;
+  std::vector<SubPass> subpass_;
+  std::vector<VkSubpassDependency> vk_subpass_dependencies_;
+  std::vector<VkAttachmentDescription> vk_attachment_descriptions_;
+  std::shared_ptr<Device> device_ = nullptr;
 };
 
 #endif  // COMMON_RENDER_PASS_H_

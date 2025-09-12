@@ -23,42 +23,32 @@
 
 class Semaphore {
  public:
-  using Ptr = std::shared_ptr<Semaphore>;
-  static Ptr Create(const Device::Ptr &device) {
-    return std::make_shared<Semaphore>(device);
-  }
-
-  explicit Semaphore(const Device::Ptr &device);
+  explicit Semaphore(const std::shared_ptr<Device> &device);
 
   ~Semaphore();
 
-  [[nodiscard]] auto GetSemaphore() const { return mSemaphore; }
+  [[nodiscard]] auto GetSemaphore() const { return vk_semaphore_; }
 
  private:
-  VkSemaphore mSemaphore{VK_NULL_HANDLE};
-  Device::Ptr mDevice{nullptr};
+  VkSemaphore vk_semaphore_ = VK_NULL_HANDLE;
+  std::shared_ptr<Device> device_ = nullptr;
 };
 
 class Fence {
  public:
-  using Ptr = std::shared_ptr<Fence>;
-  static Ptr Create(const Device::Ptr &device, bool signaled = true) {
-    return std::make_shared<Fence>(device, signaled);
-  }
-
-  explicit Fence(const Device::Ptr &device, bool signaled = true);
+  explicit Fence(const std::shared_ptr<Device> &device, bool signaled = true);
 
   ~Fence();
 
-  void resetFence();
+  void ResetFence();
 
   void Block(uint64_t timeout = UINT64_MAX);
 
-  [[nodiscard]] auto GetFence() const { return mFence; }
+  [[nodiscard]] auto GetFence() const { return vk_fence_; }
 
  private:
-  VkFence mFence{VK_NULL_HANDLE};
-  Device::Ptr mDevice{nullptr};
+  VkFence vk_fence_ = VK_NULL_HANDLE;
+  std::shared_ptr<Device> device_ = nullptr;
 };
 
 #endif  // COMMON_SYNC_OBJECTS_H_

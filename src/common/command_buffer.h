@@ -23,36 +23,23 @@
 
 class CommandPool {
  public:
-  using Ptr = std::shared_ptr<CommandPool>;
-  static Ptr Create(const Device::Ptr &device,
-                    VkCommandPoolCreateFlagBits flag =
-                        VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT) {
-    return std::make_shared<CommandPool>(device, flag);
-  }
-
-  CommandPool(const Device::Ptr &device,
+  CommandPool(const std::shared_ptr<Device> &device,
               VkCommandPoolCreateFlagBits flag =
                   VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
   ~CommandPool();
 
-  [[nodiscard]] auto GetCommandPool() const { return mCommandPool; }
+  [[nodiscard]] auto GetCommandPool() const { return command_pool_; }
 
  private:
-  VkCommandPool mCommandPool{VK_NULL_HANDLE};
+  VkCommandPool command_pool_ = VK_NULL_HANDLE;
 
-  Device::Ptr mDevice{nullptr};
+  std::shared_ptr<Device> device_ = nullptr;
 };
 
 class CommandBuffer {
  public:
-  using Ptr = std::shared_ptr<CommandBuffer>;
-  static Ptr Create(const Device::Ptr &device,
-                    const CommandPool::Ptr &commandPool,
-                    bool asSecondary = false) {
-    return std::make_shared<CommandBuffer>(device, commandPool, asSecondary);
-  }
-
-  CommandBuffer(const Device::Ptr &device, const CommandPool::Ptr &commandPool,
+  CommandBuffer(const std::shared_ptr<Device> &device,
+                const std::shared_ptr<CommandPool> &commandPool,
                 bool asSecondary = false);
   ~CommandBuffer();
 
@@ -67,13 +54,12 @@ class CommandBuffer {
   void EndRenderPass();
   void End();
 
-  [[nodiscard]] auto GetCommandBuffer() const { return mCommandBuffer; }
+  [[nodiscard]] auto GetCommandBuffer() const { return command_buffer_; }
 
  private:
-  VkCommandBuffer mCommandBuffer{VK_NULL_HANDLE};
-
-  Device::Ptr mDevice{nullptr};
-  CommandPool::Ptr mCommandPool{nullptr};
+  VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
+  std::shared_ptr<Device> device_ = nullptr;
+  std::shared_ptr<CommandPool> command_pool_ = nullptr;
 };
 
 #endif  // COMMAND_BUFFER_H_

@@ -16,45 +16,45 @@
 
 #include "common/sync_objects.h"
 
-Semaphore::Semaphore(const Device::Ptr &device) {
-  mDevice = device;
+Semaphore::Semaphore(const std::shared_ptr<Device> &device) {
+  device_ = device;
 
   VkSemaphoreCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-  if (vkCreateSemaphore(mDevice->GetDevice(), &createInfo, nullptr,
-                        &mSemaphore) != VK_SUCCESS) {
+  if (vkCreateSemaphore(device_->GetDevice(), &createInfo, nullptr,
+                        &vk_semaphore_) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create Semaphore");
   }
 }
 
 Semaphore::~Semaphore() {
-  if (mSemaphore != VK_NULL_HANDLE) {
-    vkDestroySemaphore(mDevice->GetDevice(), mSemaphore, nullptr);
+  if (vk_semaphore_ != VK_NULL_HANDLE) {
+    vkDestroySemaphore(device_->GetDevice(), vk_semaphore_, nullptr);
   }
 }
 
-Fence::Fence(const Device::Ptr &device, bool signaled) {
-  mDevice = device;
+Fence::Fence(const std::shared_ptr<Device> &device, bool signaled) {
+  device_ = device;
 
   VkFenceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
   createInfo.flags = signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
 
-  if (vkCreateFence(mDevice->GetDevice(), &createInfo, nullptr, &mFence) !=
+  if (vkCreateFence(device_->GetDevice(), &createInfo, nullptr, &vk_fence_) !=
       VK_SUCCESS) {
     throw std::runtime_error("Error:failed to create fence");
   }
 }
 
 Fence::~Fence() {
-  if (mFence != VK_NULL_HANDLE) {
-    vkDestroyFence(mDevice->GetDevice(), mFence, nullptr);
+  if (vk_fence_ != VK_NULL_HANDLE) {
+    vkDestroyFence(device_->GetDevice(), vk_fence_, nullptr);
   }
 }
 
-void Fence::resetFence() { vkResetFences(mDevice->GetDevice(), 1, &mFence); }
+void Fence::ResetFence() { vkResetFences(device_->GetDevice(), 1, &vk_fence_); }
 
 void Fence::Block(uint64_t timeout) {
-  vkWaitForFences(mDevice->GetDevice(), 1, &mFence, VK_TRUE, timeout);
+  vkWaitForFences(device_->GetDevice(), 1, &vk_fence_, VK_TRUE, timeout);
 }

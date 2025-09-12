@@ -19,51 +19,51 @@
 #include <iostream>
 #include <stdexcept>
 
-CommandPool::CommandPool(const Device::Ptr &device,
+CommandPool::CommandPool(const std::shared_ptr<Device> &device,
                          VkCommandPoolCreateFlagBits flag) {
-  mDevice = device;
+  device_ = device;
 
-  QueueFamilyIndices queueFamilyIndices = mDevice->GetQueueFamilyIndices();
+  QueueFamilyIndices queueFamilyIndices = device_->GetQueueFamilyIndices();
 
   VkCommandPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   poolInfo.flags = flag;
   poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-  if (vkCreateCommandPool(mDevice->GetDevice(), &poolInfo, nullptr,
-                          &mCommandPool) != VK_SUCCESS) {
+  if (vkCreateCommandPool(device_->GetDevice(), &poolInfo, nullptr,
+                          &command_pool_) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create command pool!");
   }
 }
 
 CommandPool::~CommandPool() {
-  if (mCommandPool != VK_NULL_HANDLE) {
-    vkDestroyCommandPool(mDevice->GetDevice(), mCommandPool, nullptr);
+  if (command_pool_ != VK_NULL_HANDLE) {
+    vkDestroyCommandPool(device_->GetDevice(), command_pool_, nullptr);
   }
 }
 
-CommandBuffer::CommandBuffer(const Device::Ptr &device,
-                             const CommandPool::Ptr &commandPool,
+CommandBuffer::CommandBuffer(const std::shared_ptr<Device> &device,
+                             const std::shared_ptr<CommandPool> &commandPool,
                              bool asSecondary) {
-  mDevice = device;
-  mCommandPool = commandPool;
+  device_ = device;
+  command_pool_ = commandPool;
 
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  allocInfo.commandPool = mCommandPool->GetCommandPool();
+  allocInfo.commandPool = command_pool_->GetCommandPool();
   allocInfo.level = asSecondary ? VK_COMMAND_BUFFER_LEVEL_SECONDARY
                                 : VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   allocInfo.commandBufferCount = 1;
 
-  if (vkAllocateCommandBuffers(mDevice->GetDevice(), &allocInfo,
-                               &mCommandBuffer) != VK_SUCCESS) {
+  if (vkAllocateCommandBuffers(device_->GetDevice(), &allocInfo,
+                               &command_buffer_) != VK_SUCCESS) {
     throw std::runtime_error("failed to allocate command buffers!");
   }
 }
 
 CommandBuffer::~CommandBuffer() {
-  mCommandPool.reset();
-  mDevice.reset();
+  command_pool_.reset();
+  device_.reset();
 }
 
 void CommandBuffer::Begin(VkCommandBufferUsageFlags flag,
@@ -73,7 +73,7 @@ void CommandBuffer::Begin(VkCommandBufferUsageFlags flag,
   beginInfo.flags = flag;
   beginInfo.pInheritanceInfo = &inheritance;
 
-  if (vkBeginCommandBuffer(mCommandBuffer, &beginInfo) != VK_SUCCESS) {
+  if (vkBeginCommandBuffer(command_buffer_, &beginInfo) != VK_SUCCESS) {
     throw std::runtime_error("failed to begin recording command buffer!");
   }
 }
@@ -81,21 +81,21 @@ void CommandBuffer::Begin(VkCommandBufferUsageFlags flag,
 void CommandBuffer::BeginRenderPass(
     const VkRenderPassBeginInfo &renderPassBeginInfo,
     const VkSubpassContents &subPassContents) {
-  vkCmdBeginRenderPass(mCommandBuffer, &renderPassBeginInfo, subPassContents);
+  vkCmdBeginRenderPass(command_buffer_, &renderPassBeginInfo, subPassContents);
 }
 
 void CommandBuffer::BindGraphicPipeline(const VkPipeline &pipeline) {
-  vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+  vkCmdBindPipeline(command_buffer_, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 }
 
 void CommandBuffer::Draw(size_t vertexCount) {
-  vkCmdDraw(mCommandBuffer, vertexCount, 1, 0, 0);
+  vkCmdDraw(command_buffer_, vertexCount, 1, 0, 0);
 }
 
-void CommandBuffer::EndRenderPass() { vkCmdEndRenderPass(mCommandBuffer); }
+void CommandBuffer::EndRenderPass() { vkCmdEndRenderPass(command_buffer_); }
 
 void CommandBuffer::End() {
-  if (vkEndCommandBuffer(mCommandBuffer) != VK_SUCCESS) {
+  if (vkEndCommandBuffer(command_buffer_) != VK_SUCCESS) {
     throw std::runtime_error("Error:failed to end Command Buffer");
   }
 }

@@ -17,8 +17,8 @@
 #ifndef COMMON_DEVICE_H_
 #define COMMON_DEVICE_H_
 
-#include <optional>
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "common/instance.h"
@@ -39,14 +39,8 @@ struct QueueFamilyIndices {
 
 class Device {
  public:
-  using Ptr = std::shared_ptr<Device>;
-  static Ptr Create(const Instance::Ptr &instance,
-                    const WindowSurface::Ptr &windowSurface) {
-    return std::make_shared<Device>(instance, windowSurface);
-  }
-
-  Device(const Instance::Ptr &instance,
-         const WindowSurface::Ptr &windowSurface);
+  Device(const std::shared_ptr<Instance> &instance,
+         const std::shared_ptr<WindowSurface> &windowSurface);
 
   ~Device();
 
@@ -62,22 +56,22 @@ class Device {
 
   bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
-  [[nodiscard]] auto GetDevice() const { return mDevice; }
-  [[nodiscard]] auto GetPhysicalDevice() const { return mPhysicalDevice; }
+  [[nodiscard]] auto GetDevice() const { return device_; }
+  [[nodiscard]] auto GetPhysicalDevice() const { return physical_device_; }
   [[nodiscard]] auto GetQueueFamilyIndices() const {
-    return mQueueFamilyIndices;
+    return queue_family_indices_;
   }
-  [[nodiscard]] auto GetGraphicsQueue() const { return mGraphicsQueue; }
-  [[nodiscard]] auto GetPresentQueue() const { return mPresentQueue; }
+  [[nodiscard]] auto GetGraphicsQueue() const { return graphics_queue_; }
+  [[nodiscard]] auto GetPresentQueue() const { return present_queue_; }
 
  private:
-  VkPhysicalDevice mPhysicalDevice{VK_NULL_HANDLE};
-  Instance::Ptr mInstance{nullptr};
-  WindowSurface::Ptr mWindowSurface{nullptr};
-  VkDevice mDevice{VK_NULL_HANDLE};  // logical device handle
-  QueueFamilyIndices mQueueFamilyIndices{};
-  VkQueue mGraphicsQueue{VK_NULL_HANDLE};
-  VkQueue mPresentQueue{VK_NULL_HANDLE};
+  VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
+  std::shared_ptr<Instance> instance_ = nullptr;
+  std::shared_ptr<WindowSurface> window_surface_ = nullptr;
+  VkDevice device_ = VK_NULL_HANDLE;  // logical device handle
+  QueueFamilyIndices queue_family_indices_;
+  VkQueue graphics_queue_ = VK_NULL_HANDLE;
+  VkQueue present_queue_ = VK_NULL_HANDLE;
 };
 
 #endif  // COMMON_DEVICE_H_

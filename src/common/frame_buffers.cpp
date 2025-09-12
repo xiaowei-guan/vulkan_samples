@@ -16,41 +16,41 @@
 
 #include "common/frame_buffers.h"
 
-FrameBuffers::FrameBuffers(const Device::Ptr &device,
-                           const SwapChain::Ptr &swapChain,
-                           const RenderPass::Ptr &renderPass) {
-  mDevice = device;
-  mSwapChain = swapChain;
-  mRenderPass = renderPass;
+FrameBuffers::FrameBuffers(const std::shared_ptr<Device> &device,
+                           const std::shared_ptr<SwapChain> &swapChain,
+                           const std::shared_ptr<RenderPass> &renderPass) {
+  device_ = device;
+  swap_chain_ = swapChain;
+  render_pass_ = renderPass;
 
-  size_t imageCount = mSwapChain->GetSwapChainImageCount();
-  mSwapChainFramebuffers.resize(imageCount);
+  size_t imageCount = swap_chain_->GetSwapChainImageCount();
+  swap_chain_frame_buffers_.resize(imageCount);
 
   for (size_t i = 0; i < imageCount; ++i) {
-    VkImageView attachments[] = {mSwapChain->GetSwapChainImageView(i)};
+    VkImageView attachments[] = {swap_chain_->GetSwapChainImageView(i)};
 
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.renderPass = mRenderPass->GetRenderPass();
+    framebufferInfo.renderPass = render_pass_->GetRenderPass();
     framebufferInfo.attachmentCount = 1;
     framebufferInfo.pAttachments = attachments;
-    framebufferInfo.width = mSwapChain->GetSwapChainExtent().width;
-    framebufferInfo.height = mSwapChain->GetSwapChainExtent().height;
+    framebufferInfo.width = swap_chain_->GetSwapChainExtent().width;
+    framebufferInfo.height = swap_chain_->GetSwapChainExtent().height;
     framebufferInfo.layers = 1;
 
-    if (vkCreateFramebuffer(mDevice->GetDevice(), &framebufferInfo, nullptr,
-                            &mSwapChainFramebuffers[i]) != VK_SUCCESS) {
+    if (vkCreateFramebuffer(device_->GetDevice(), &framebufferInfo, nullptr,
+                            &swap_chain_frame_buffers_[i]) != VK_SUCCESS) {
       throw std::runtime_error("Error: failed to create framebuffer!");
     }
   }
 }
 
 FrameBuffers::~FrameBuffers() {
-  for (auto framebuffer : mSwapChainFramebuffers) {
-    vkDestroyFramebuffer(mDevice->GetDevice(), framebuffer, nullptr);
+  for (auto framebuffer : swap_chain_frame_buffers_) {
+    vkDestroyFramebuffer(device_->GetDevice(), framebuffer, nullptr);
   }
 
-  mDevice.reset();
-  mSwapChain.reset();
-  mRenderPass.reset();
+  device_.reset();
+  swap_chain_.reset();
+  render_pass_.reset();
 }

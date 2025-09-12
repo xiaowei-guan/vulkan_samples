@@ -39,13 +39,13 @@ static std::vector<char> readFile(const std::string &filename) {
 
 // Before we can pass the codeBuffer to the pipeline, we have to wrap it in a
 // VkShaderModule object.
-ShaderStageInfo::ShaderStageInfo(const Device::Ptr &device,
+ShaderStageInfo::ShaderStageInfo(const std::shared_ptr<Device> &device,
                                  const std::string &fileName,
                                  VkShaderStageFlagBits shaderStage,
                                  const std::string &entryPoint) {
-  mDevice = device;
-  mShaderStage = shaderStage;
-  mEntryPoint = entryPoint;
+  device_ = device;
+  shader_stage_ = shaderStage;
+  entry_point_ = entryPoint;
 
   // 1. Create shader module.
   std::vector<char> codeBuffer = readFile(fileName);
@@ -53,15 +53,16 @@ ShaderStageInfo::ShaderStageInfo(const Device::Ptr &device,
 
   // 2. Shader stage creation.
   // Assign shaders to a specific pipeline stage.
-  mShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  mShaderStageInfo.stage = mShaderStage;
-  mShaderStageInfo.module = mShaderModule;
-  mShaderStageInfo.pName = mEntryPoint.c_str();
+  shader_stage_info_.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  shader_stage_info_.stage = shader_stage_;
+  shader_stage_info_.module = shader_module_;
+  shader_stage_info_.pName = entry_point_.c_str();
 }
 
 ShaderStageInfo::~ShaderStageInfo() {
-  if (mShaderModule != VK_NULL_HANDLE) {
-    vkDestroyShaderModule(mDevice->GetDevice(), mShaderModule, nullptr);
+  if (shader_module_ != VK_NULL_HANDLE) {
+    vkDestroyShaderModule(device_->GetDevice(), shader_module_, nullptr);
   }
 }
 
@@ -74,63 +75,63 @@ void ShaderStageInfo::CreateShaderModule(const std::vector<char> &codeBuffer) {
   shaderCreateInfo.pCode =
       reinterpret_cast<const uint32_t *>(codeBuffer.data());
 
-  if (vkCreateShaderModule(mDevice->GetDevice(), &shaderCreateInfo, nullptr,
-                           &mShaderModule) != VK_SUCCESS) {
+  if (vkCreateShaderModule(device_->GetDevice(), &shaderCreateInfo, nullptr,
+                           &shader_module_) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create shader");
   }
 }
 
-GraphicsPipeline::GraphicsPipeline(const Device::Ptr &device,
-                                   const RenderPass::Ptr &renderPass) {
-  mDevice = device;
-  mRenderPass = renderPass;
+GraphicsPipeline::GraphicsPipeline(
+    const std::shared_ptr<Device> &device,
+    const std::shared_ptr<RenderPass> &renderPass) {
+  device_ = device;
+  render_pass_ = renderPass;
 
-  mVertexInputInfo.sType =
+  vertex_input_info.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  mInputAssembly.sType =
+  input_assembly.sType =
       VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-  mViewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-  mRasterizer.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-  mMultisampling.sType =
+  viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+  rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+  multisampling.sType =
       VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-  mColorBlending.sType =
+  color_blending.sType =
       VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-  mPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+  pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 }
 
 GraphicsPipeline::~GraphicsPipeline() {
-  if (mGraphicsPipeline != VK_NULL_HANDLE) {
-    vkDestroyPipeline(mDevice->GetDevice(), mGraphicsPipeline, nullptr);
+  if (graphics_pipeline_ != VK_NULL_HANDLE) {
+    vkDestroyPipeline(device_->GetDevice(), graphics_pipeline_, nullptr);
   }
 
-  if (mPipelineLayout != VK_NULL_HANDLE) {
-    vkDestroyPipelineLayout(mDevice->GetDevice(), mPipelineLayout, nullptr);
+  if (pipeline_layout != VK_NULL_HANDLE) {
+    vkDestroyPipelineLayout(device_->GetDevice(), pipeline_layout, nullptr);
   }
 
-  mDevice.reset();
-  mRenderPass.reset();
+  device_.reset();
+  render_pass_.reset();
 }
 
 void GraphicsPipeline::BuildPipeline() {
   // 2.4.Viewports and scissors.
-  mViewportState.viewportCount = static_cast<uint32_t>(mViewports.size());
-  mViewportState.pViewports = mViewports.data();
-  mViewportState.scissorCount = static_cast<uint32_t>(mScissors.size());
-  mViewportState.pScissors = mScissors.data();
+  viewport_state.viewportCount = static_cast<uint32_t>(viewports_.size());
+  viewport_state.pViewports = viewports_.data();
+  viewport_state.scissorCount = static_cast<uint32_t>(scissors_.size());
+  viewport_state.pScissors = scissors_.data();
 
   // 2.8.Color blending.
-  mColorBlending.attachmentCount =
-      static_cast<uint32_t>(mBlendAttachmentStates.size());
-  mColorBlending.pAttachments = mBlendAttachmentStates.data();
+  color_blending.attachmentCount =
+      static_cast<uint32_t>(blend_attachment_states.size());
+  color_blending.pAttachments = blend_attachment_states.data();
 
   // 3.Pipeline layout.
-  if (mPipelineLayout != VK_NULL_HANDLE) {
-    vkDestroyPipelineLayout(mDevice->GetDevice(), mPipelineLayout, nullptr);
+  if (pipeline_layout != VK_NULL_HANDLE) {
+    vkDestroyPipelineLayout(device_->GetDevice(), pipeline_layout, nullptr);
   }
 
-  if (vkCreatePipelineLayout(mDevice->GetDevice(), &mPipelineLayoutInfo,
-                             nullptr, &mPipelineLayout) != VK_SUCCESS) {
+  if (vkCreatePipelineLayout(device_->GetDevice(), &pipeline_layout_info,
+                             nullptr, &pipeline_layout) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create pipeline layout!");
   }
 
@@ -138,31 +139,31 @@ void GraphicsPipeline::BuildPipeline() {
   VkGraphicsPipelineCreateInfo pipelineInfo{};
   pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 
-  pipelineInfo.stageCount = static_cast<uint32_t>(mShaderStages.size());
-  pipelineInfo.pStages = mShaderStages.data();
+  pipelineInfo.stageCount = static_cast<uint32_t>(shader_stages_.size());
+  pipelineInfo.pStages = shader_stages_.data();
 
-  pipelineInfo.pVertexInputState = &mVertexInputInfo;
-  pipelineInfo.pInputAssemblyState = &mInputAssembly;
-  pipelineInfo.pViewportState = &mViewportState;
-  pipelineInfo.pRasterizationState = &mRasterizer;
-  pipelineInfo.pMultisampleState = &mMultisampling;
+  pipelineInfo.pVertexInputState = &vertex_input_info;
+  pipelineInfo.pInputAssemblyState = &input_assembly;
+  pipelineInfo.pViewportState = &viewport_state;
+  pipelineInfo.pRasterizationState = &rasterizer;
+  pipelineInfo.pMultisampleState = &multisampling;
   pipelineInfo.pDepthStencilState = nullptr;
-  pipelineInfo.pColorBlendState = &mColorBlending;
+  pipelineInfo.pColorBlendState = &color_blending;
   // pipelineInfo.pDynamicState = &dynamicState;
-  pipelineInfo.layout = mPipelineLayout;
-  pipelineInfo.renderPass = mRenderPass->GetRenderPass();
+  pipelineInfo.layout = pipeline_layout;
+  pipelineInfo.renderPass = render_pass_->GetRenderPass();
   pipelineInfo.subpass = 0;
 
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;  // Optional
   pipelineInfo.basePipelineIndex = -1;               // Optional
 
-  if (mGraphicsPipeline != VK_NULL_HANDLE) {
-    vkDestroyPipeline(mDevice->GetDevice(), mGraphicsPipeline, nullptr);
+  if (graphics_pipeline_ != VK_NULL_HANDLE) {
+    vkDestroyPipeline(device_->GetDevice(), graphics_pipeline_, nullptr);
   }
 
-  if (vkCreateGraphicsPipelines(mDevice->GetDevice(), VK_NULL_HANDLE, 1,
+  if (vkCreateGraphicsPipelines(device_->GetDevice(), VK_NULL_HANDLE, 1,
                                 &pipelineInfo, nullptr,
-                                &mGraphicsPipeline) != VK_SUCCESS) {
+                                &graphics_pipeline_) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create graphics pipeline!");
   }
 }

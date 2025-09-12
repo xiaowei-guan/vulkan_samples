@@ -15,16 +15,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/swap_chain.h"
-#include <stdexcept>
+
 #include <limits>
+#include <stdexcept>
 #include <vector>
 
-SwapChain::SwapChain(const Device::Ptr &device,
-                     const WindowSurface::Ptr &surface,
-                     const Window::Ptr &window) {
-  mDevice = device;
-  mSurface = surface;
-  mWindow = window;
+SwapChain::SwapChain(const std::shared_ptr<Device> &device,
+                     const std::shared_ptr<WindowSurface> &surface,
+                     const std::shared_ptr<Window> &window) {
+  device_ = device;
+  window_surface_ = surface;
 
   SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport();
 
@@ -34,16 +34,16 @@ SwapChain::SwapChain(const Device::Ptr &device,
       ChooseSwapPresentMode(swapChainSupport.presentModes);
   VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
 
-  mImageCount = swapChainSupport.capabilities.minImageCount + 1;
+  image_count_ = swapChainSupport.capabilities.minImageCount + 1;
   if (swapChainSupport.capabilities.maxImageCount > 0 &&
-      mImageCount > swapChainSupport.capabilities.maxImageCount) {
-    mImageCount = swapChainSupport.capabilities.maxImageCount;
+      image_count_ > swapChainSupport.capabilities.maxImageCount) {
+    image_count_ = swapChainSupport.capabilities.maxImageCount;
   }
 
   VkSwapchainCreateInfoKHR createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-  createInfo.surface = mSurface->GetSurface();
-  createInfo.minImageCount = mImageCount;
+  createInfo.surface = window_surface_->GetSurface();
+  createInfo.minImageCount = image_count_;
   createInfo.imageFormat = surfaceFormat.format;
   createInfo.imageColorSpace = surfaceFormat.colorSpace;
   createInfo.imageExtent = extent;
@@ -54,8 +54,8 @@ SwapChain::SwapChain(const Device::Ptr &device,
   // Specify how to handle swap chain images that will be used across multiple
   // queue families.
   std::vector<uint32_t> queueFamilyIndices = {
-      mDevice->GetQueueFamilyIndices().graphicsFamily.value(),
-      mDevice->GetQueueFamilyIndices().presentFamily.value()};
+      device_->GetQueueFamilyIndices().graphicsFamily.value(),
+      device_->GetQueueFamilyIndices().presentFamily.value()};
   if (queueFamilyIndices[0] != queueFamilyIndices[1]) {
     createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
     createInfo.queueFamilyIndexCount = 2;
@@ -72,61 +72,61 @@ SwapChain::SwapChain(const Device::Ptr &device,
   createInfo.clipped = VK_TRUE;
   createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-  if (vkCreateSwapchainKHR(mDevice->GetDevice(), &createInfo, nullptr,
-                           &mSwapChain) != VK_SUCCESS) {
+  if (vkCreateSwapchainKHR(device_->GetDevice(), &createInfo, nullptr,
+                           &vk_swapchain_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create swap chain!");
   }
 
   // Retrieving the swap chain images.
-  vkGetSwapchainImagesKHR(mDevice->GetDevice(), mSwapChain, &mImageCount,
+  vkGetSwapchainImagesKHR(device_->GetDevice(), vk_swapchain_, &image_count_,
                           nullptr);
-  mSwapChainImages.resize(mImageCount);
-  vkGetSwapchainImagesKHR(mDevice->GetDevice(), mSwapChain, &mImageCount,
-                          mSwapChainImages.data());
+  swapchain_images_.resize(image_count_);
+  vkGetSwapchainImagesKHR(device_->GetDevice(), vk_swapchain_, &image_count_,
+                          swapchain_images_.data());
 
-  mSwapChainImageFormat = surfaceFormat.format;
-  mSwapChainExtent = extent;
+  swapchain_image_format_ = surfaceFormat.format;
+  swapchain_extent_ = extent;
 
   CreateImageViews();
 }
 
 SwapChain::~SwapChain() {
-  for (auto &imageView : mSwapChainImageViews) {
-    vkDestroyImageView(mDevice->GetDevice(), imageView, nullptr);
+  for (auto &imageView : swapchain_imege_views_) {
+    vkDestroyImageView(device_->GetDevice(), imageView, nullptr);
   }
-  if (mSwapChain) {
-    vkDestroySwapchainKHR(mDevice->GetDevice(), mSwapChain, nullptr);
+  if (vk_swapchain_) {
+    vkDestroySwapchainKHR(device_->GetDevice(), vk_swapchain_, nullptr);
   }
-  mDevice.reset();
-  mSurface.reset();
-  mWindow.reset();
+  device_.reset();
+  window_surface_.reset();
+  window_.reset();
 }
 
 SwapChainSupportDetails SwapChain::QuerySwapChainSupport() {
   SwapChainSupportDetails details;
-  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mDevice->GetPhysicalDevice(),
-                                            mSurface->GetSurface(),
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device_->GetPhysicalDevice(),
+                                            window_surface_->GetSurface(),
                                             &details.capabilities);
 
   uint32_t formatCount;
-  vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->GetPhysicalDevice(),
-                                       mSurface->GetSurface(), &formatCount,
+  vkGetPhysicalDeviceSurfaceFormatsKHR(device_->GetPhysicalDevice(),
+                                       window_surface_->GetSurface(), &formatCount,
                                        nullptr);
   if (formatCount != 0) {
     details.formats.resize(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->GetPhysicalDevice(),
-                                         mSurface->GetSurface(), &formatCount,
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device_->GetPhysicalDevice(),
+                                         window_surface_->GetSurface(), &formatCount,
                                          details.formats.data());
   }
 
   uint32_t presentModeCount;
-  vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->GetPhysicalDevice(),
-                                            mSurface->GetSurface(),
+  vkGetPhysicalDeviceSurfacePresentModesKHR(device_->GetPhysicalDevice(),
+                                            window_surface_->GetSurface(),
                                             &presentModeCount, nullptr);
   if (presentModeCount != 0) {
     details.presentModes.resize(presentModeCount);
     vkGetPhysicalDeviceSurfacePresentModesKHR(
-        mDevice->GetPhysicalDevice(), mSurface->GetSurface(), &presentModeCount,
+        device_->GetPhysicalDevice(), window_surface_->GetSurface(), &presentModeCount,
         details.presentModes.data());
   }
 
@@ -164,7 +164,7 @@ VkExtent2D SwapChain::ChooseSwapExtent(
     return capabilities.currentExtent;
   } else {
     int width = 0, height = 0;
-    glfwGetFramebufferSize(mWindow->GetWindow(), &width, &height);
+    glfwGetFramebufferSize(window_->GetWindow(), &width, &height);
 
     VkExtent2D actualExtent = {static_cast<uint32_t>(width),
                                static_cast<uint32_t>(height)};
@@ -181,16 +181,16 @@ VkExtent2D SwapChain::ChooseSwapExtent(
 }
 
 void SwapChain::CreateImageViews() {
-  mSwapChainImageViews.resize(mImageCount);
+  swapchain_imege_views_.resize(image_count_);
 
-  for (size_t i = 0; i < mImageCount; i++) {
+  for (size_t i = 0; i < image_count_; i++) {
     VkImageViewCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    createInfo.image = mSwapChainImages[i];
+    createInfo.image = swapchain_images_[i];
     // The viewType parameter allows you to treat images as 1D textures, 2D
     // textures, 3D textures and cube maps.
     createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    createInfo.format = mSwapChainImageFormat;
+    createInfo.format = swapchain_image_format_;
 
     createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     createInfo.subresourceRange.baseMipLevel = 0;
@@ -198,8 +198,8 @@ void SwapChain::CreateImageViews() {
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
 
-    if (vkCreateImageView(mDevice->GetDevice(), &createInfo, nullptr,
-                          &mSwapChainImageViews[i]) != VK_SUCCESS) {
+    if (vkCreateImageView(device_->GetDevice(), &createInfo, nullptr,
+                          &swapchain_imege_views_[i]) != VK_SUCCESS) {
       throw std::runtime_error("failed to create image views!");
     }
   }

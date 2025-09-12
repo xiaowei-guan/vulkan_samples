@@ -15,91 +15,93 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/render_pass.h"
-#include <stdexcept>
 
+#include <stdexcept>
 
 SubPass::~SubPass() {}
 
 void SubPass::AddColorAttachmentReference(const VkAttachmentReference& ref) {
-  mColorAttachmentReferences.push_back(ref);
+  color_attachment_references_.push_back(ref);
 }
 
 void SubPass::AddInputAttachmentReference(const VkAttachmentReference& ref) {
-  mInputAttachmentReferences.push_back(ref);
+  input_attachment_references_.push_back(ref);
 }
 
 void SubPass::SetDepthStencilAttachmentReference(
     const VkAttachmentReference& ref) {
-  mDepthStencilAttachmentReference = ref;
+  depth_stencil_attachment_reference_ = ref;
 }
 
 void SubPass::BuildSubPassDescription() {
-  if (mColorAttachmentReferences.empty()) {
+  if (color_attachment_references_.empty()) {
     throw std::runtime_error("Error: color attachment group is empty!");
   }
-  mSubPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+  vk_subpass_description_.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
-  mSubPassDescription.colorAttachmentCount =
-      static_cast<uint32_t>(mColorAttachmentReferences.size());
-  mSubPassDescription.pColorAttachments = mColorAttachmentReferences.data();
+  vk_subpass_description_.colorAttachmentCount =
+      static_cast<uint32_t>(color_attachment_references_.size());
+  vk_subpass_description_.pColorAttachments = color_attachment_references_.data();
 
-  mSubPassDescription.inputAttachmentCount =
-      static_cast<uint32_t>(mInputAttachmentReferences.size());
-  mSubPassDescription.pInputAttachments = mInputAttachmentReferences.data();
+  vk_subpass_description_.inputAttachmentCount =
+      static_cast<uint32_t>(input_attachment_references_.size());
+  vk_subpass_description_.pInputAttachments = input_attachment_references_.data();
 
-  mSubPassDescription.pDepthStencilAttachment =
-      mDepthStencilAttachmentReference.layout == VK_IMAGE_LAYOUT_UNDEFINED
+  vk_subpass_description_.pDepthStencilAttachment =
+      depth_stencil_attachment_reference_.layout == VK_IMAGE_LAYOUT_UNDEFINED
           ? nullptr
-          : &mDepthStencilAttachmentReference;
+          : &depth_stencil_attachment_reference_;
 }
 
-RenderPass::RenderPass(const Device::Ptr& device) { mDevice = device; }
+RenderPass::RenderPass(const std::shared_ptr<Device>& device) {
+  device_ = device;
+}
 
 RenderPass::~RenderPass() {
-  if (mRenderPass != VK_NULL_HANDLE) {
-    vkDestroyRenderPass(mDevice->GetDevice(), mRenderPass, nullptr);
+  if (vk_render_pass_ != VK_NULL_HANDLE) {
+    vkDestroyRenderPass(device_->GetDevice(), vk_render_pass_, nullptr);
   }
 }
 
 void RenderPass::AddSubPass(const SubPass& subpass) {
-  mSubPasses.push_back(subpass);
+  subpass_.push_back(subpass);
 }
 
 void RenderPass::AddDependency(const VkSubpassDependency& dependency) {
-  mDependencies.push_back(dependency);
+  vk_subpass_dependencies_.push_back(dependency);
 }
 
 void RenderPass::AddAttachment(const VkAttachmentDescription& attachmentDes) {
-  mAttachmentDescriptions.push_back(attachmentDes);
+  vk_attachment_descriptions_.push_back(attachmentDes);
 }
 
 void RenderPass::BuildRenderPass() {
-  if (mSubPasses.empty() || mAttachmentDescriptions.empty() ||
-      mDependencies.empty()) {
+  if (subpass_.empty() || vk_attachment_descriptions_.empty() ||
+      vk_subpass_dependencies_.empty()) {
     throw std::runtime_error("Error: not enough elements to build renderPass");
   }
 
   // unwrap
   std::vector<VkSubpassDescription> subPasses{};
-  for (int i = 0; i < mSubPasses.size(); ++i) {
-    subPasses.push_back(mSubPasses[i].GetSubPassDescription());
+  for (int i = 0; i < subpass_.size(); ++i) {
+    subPasses.push_back(subpass_[i].GetSubPassDescription());
   }
 
   VkRenderPassCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 
   createInfo.attachmentCount =
-      static_cast<uint32_t>(mAttachmentDescriptions.size());
-  createInfo.pAttachments = mAttachmentDescriptions.data();
+      static_cast<uint32_t>(vk_attachment_descriptions_.size());
+  createInfo.pAttachments = vk_attachment_descriptions_.data();
 
-  createInfo.dependencyCount = static_cast<uint32_t>(mDependencies.size());
-  createInfo.pDependencies = mDependencies.data();
+  createInfo.dependencyCount = static_cast<uint32_t>(vk_subpass_dependencies_.size());
+  createInfo.pDependencies = vk_subpass_dependencies_.data();
 
   createInfo.subpassCount = static_cast<uint32_t>(subPasses.size());
   createInfo.pSubpasses = subPasses.data();
 
-  if (vkCreateRenderPass(mDevice->GetDevice(), &createInfo, nullptr,
-                         &mRenderPass) != VK_SUCCESS) {
+  if (vkCreateRenderPass(device_->GetDevice(), &createInfo, nullptr,
+                         &vk_render_pass_) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create renderPass");
   }
 }

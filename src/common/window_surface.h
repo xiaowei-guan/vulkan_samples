@@ -25,22 +25,18 @@
 
 class WindowSurface {
  public:
-  using Ptr = std::shared_ptr<WindowSurface>;
-  static Ptr Create(const Instance::Ptr &instance, const Window::Ptr &window) {
-    return std::make_shared<WindowSurface>(instance, window);
-  }
-
-  WindowSurface(const Instance::Ptr &instance, const Window::Ptr &window);
+  WindowSurface(const std::shared_ptr<Instance> &instance,
+                const std::shared_ptr<Window> &window);
   ~WindowSurface();
 
-  [[nodiscard]] auto GetSurface() const { return mSurface; }
+  [[nodiscard]] auto GetSurface() const { return vk_surface_; }
 
  private:
   // To present rendered images to. WIll be backed by the window that opened
   // with GLFW. An entirely optional component in Vulkan, if you just need
   // off-screen rendering.
-  VkSurfaceKHR mSurface{VK_NULL_HANDLE};
-  Instance::Ptr mInstance{nullptr};
+  VkSurfaceKHR vk_surface_ = VK_NULL_HANDLE;
+  std::shared_ptr<Instance> instance_ = nullptr;
 };
 
 #endif  // COMMON_WINDOW_SURFACE_H_

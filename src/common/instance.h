@@ -24,11 +24,6 @@
 
 class Instance {
  public:
-  using Ptr = std::shared_ptr<Instance>;
-  static Ptr create(bool enableValidationLayer) {
-    return std::make_shared<Instance>(enableValidationLayer);
-  }
-
   explicit Instance(bool enableValidationLayer);
 
   ~Instance();
@@ -39,16 +34,15 @@ class Instance {
   bool CheckValidationLayerSupport();
   void SetupDebugger();
 
-  [[nodiscard]] VkInstance GetInstance() const { return mInstance; }
+  [[nodiscard]] VkInstance GetInstance() const { return instance_; }
   [[nodiscard]] bool IsValidationLayerEnabled() const {
-    return mEnableValidationLayer;
+    return enable_validation_layer_;
   }
 
  private:
-  VkInstance mInstance{VK_NULL_HANDLE};
-  bool mEnableValidationLayer{false};
-  VkDebugUtilsMessengerEXT mDebugger{VK_NULL_HANDLE};
+  VkInstance instance_ = VK_NULL_HANDLE;
+  bool enable_validation_layer_ = false;
+  VkDebugUtilsMessengerEXT debuger_ = VK_NULL_HANDLE;
 };
 
 #endif  // COMMON_INSTANCE_H_
-

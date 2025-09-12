@@ -24,11 +24,6 @@
 
 class Window {
  public:
-  using Ptr = std::shared_ptr<Window>;
-  static Ptr Create(const uint32_t &width, const uint32_t &height) {
-    return std::make_shared<Window>(width, height);
-  }
-
   Window(const uint32_t &width, const uint32_t &height);
 
   ~Window();
@@ -37,12 +32,12 @@ class Window {
 
   void PollEvents();
 
-  [[nodiscard]] auto GetWindow() const { return mWindow; }
+  [[nodiscard]] auto GetWindow() const { return glfw_window_; }
 
  private:
-  uint32_t mWidth{0};
-  uint32_t mHeight{0};
-  GLFWwindow *mWindow{NULL};
+  uint32_t width_ = 0;
+  uint32_t height_ = 0;
+  GLFWwindow *glfw_window_ = nullptr;
 };
 
 #endif  // COMMON_WINDOW_H_

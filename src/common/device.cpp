@@ -14,44 +14,43 @@
 // under the License.
 ////////////////////////////////////////////////////////////////////////////////
 
-
 #include "common/device.h"
 
 #include <iostream>
 #include <map>
 #include <set>
-#include <vector>
 #include <string>
 #include <utility>
+#include <vector>
 
 // Validation layers.
 const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
 
-Device::Device(const Instance::Ptr &instance,
-               const WindowSurface::Ptr &windowSurface) {
-  mInstance = instance;
-  mWindowSurface = windowSurface;
+Device::Device(const std::shared_ptr<Instance> &instance,
+               const std::shared_ptr<WindowSurface> &windowSurface) {
+  instance_ = instance;
+  window_surface_ = windowSurface;
   PickPhysicalDevice();
-  FindQueueFamilies(mPhysicalDevice);
+  FindQueueFamilies(physical_device_);
   CreateLogicalDevice();
 }
 
 Device::~Device() {
-  vkDestroyDevice(mDevice, nullptr);
-  mWindowSurface.reset();
-  mInstance.reset();
+  vkDestroyDevice(device_, nullptr);
+  window_surface_.reset();
+  instance_.reset();
 }
 
 void Device::PickPhysicalDevice() {
   uint32_t deviceCount = 0;
-  vkEnumeratePhysicalDevices(mInstance->GetInstance(), &deviceCount, nullptr);
+  vkEnumeratePhysicalDevices(instance_->GetInstance(), &deviceCount, nullptr);
   if (deviceCount == 0) {
     throw std::runtime_error("Error:failed to emumerate physical devices!");
   }
 
   std::vector<VkPhysicalDevice> devices(deviceCount);
-  vkEnumeratePhysicalDevices(mInstance->GetInstance(), &deviceCount,
+  vkEnumeratePhysicalDevices(instance_->GetInstance(), &deviceCount,
                              devices.data());
 
   // Use an ordered map to automatically sort candidates by increasing score
@@ -65,10 +64,10 @@ void Device::PickPhysicalDevice() {
   // Check if the best candidate is suitable at all
   if (candidates.rbegin()->first > 0 &&
       IsDeviceSuitable(candidates.rbegin()->second)) {
-    mPhysicalDevice = candidates.rbegin()->second;
+    physical_device_ = candidates.rbegin()->second;
   }
 
-  if (mPhysicalDevice == VK_NULL_HANDLE) {
+  if (physical_device_ == VK_NULL_HANDLE) {
     throw std::runtime_error("Error: failed to find a suitable GPU!");
   }
 }
@@ -140,17 +139,17 @@ void Device::FindQueueFamilies(VkPhysicalDevice device) {
   for (const auto &queueFamily : queueFamilies) {
     if (queueFamily.queueCount > 0 &&
         (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
-      mQueueFamilyIndices.graphicsFamily = i;
+      queue_family_indices_.graphicsFamily = i;
     }
 
     VkBool32 presentSupport = false;
     vkGetPhysicalDeviceSurfaceSupportKHR(
-        device, i, mWindowSurface->GetSurface(), &presentSupport);
+        device, i, window_surface_->GetSurface(), &presentSupport);
     if (presentSupport) {
-      mQueueFamilyIndices.presentFamily = i;
+      queue_family_indices_.presentFamily = i;
     }
 
-    if (mQueueFamilyIndices.isComplete()) {
+    if (queue_family_indices_.isComplete()) {
       break;
     }
 
@@ -162,8 +161,8 @@ void Device::CreateLogicalDevice() {
   // Specifying the queues to be created.
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
   std::set<uint32_t> uniqueQueueFamilies = {
-      mQueueFamilyIndices.graphicsFamily.value(),
-      mQueueFamilyIndices.presentFamily.value()};
+      queue_family_indices_.graphicsFamily.value(),
+      queue_family_indices_.presentFamily.value()};
 
   float queuePriority = 1.0f;
   for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -195,7 +194,7 @@ void Device::CreateLogicalDevice() {
       static_cast<uint32_t>(deviceExtensions.size());
   createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-  if (mInstance->IsValidationLayerEnabled()) {
+  if (instance_->IsValidationLayerEnabled()) {
     createInfo.enabledLayerCount =
         static_cast<uint32_t>(validationLayers.size());
     createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -203,15 +202,15 @@ void Device::CreateLogicalDevice() {
     createInfo.enabledLayerCount = 0;
   }
 
-  if (vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice) !=
+  if (vkCreateDevice(physical_device_, &createInfo, nullptr, &device_) !=
       VK_SUCCESS) {
     throw std::runtime_error("Error: failed to create logical device!");
   }
 
   // Retrieving queue handles.
   // Device queues are implicitly cleaned up when the device is destroyed.
-  vkGetDeviceQueue(mDevice, mQueueFamilyIndices.graphicsFamily.value(), 0,
-                   &mGraphicsQueue);
-  vkGetDeviceQueue(mDevice, mQueueFamilyIndices.presentFamily.value(), 0,
-                   &mPresentQueue);
+  vkGetDeviceQueue(device_, queue_family_indices_.graphicsFamily.value(), 0,
+                   &graphics_queue_);
+  vkGetDeviceQueue(device_, queue_family_indices_.presentFamily.value(), 0,
+                   &present_queue_);
 }

@@ -26,26 +26,20 @@
 
 class FrameBuffers {
  public:
-  using Ptr = std::shared_ptr<FrameBuffers>;
-  static Ptr Create(const Device::Ptr &device, const SwapChain::Ptr &swapChain,
-                    const RenderPass::Ptr &renderPass) {
-    return std::make_shared<FrameBuffers>(device, swapChain, renderPass);
-  }
-
-  FrameBuffers(const Device::Ptr &device, const SwapChain::Ptr &swapChain,
-               const RenderPass::Ptr &renderPass);
+  FrameBuffers(const std::shared_ptr<Device> &device,
+               const std::shared_ptr<SwapChain> &swapChain,
+               const std::shared_ptr<RenderPass> &renderPass);
   ~FrameBuffers();
 
   [[nodiscard]] auto GetFrameBuffer(const size_t index) const {
-    return mSwapChainFramebuffers[index];
+    return swap_chain_frame_buffers_[index];
   }
 
  private:
-  std::vector<VkFramebuffer> mSwapChainFramebuffers;
-
-  Device::Ptr mDevice{nullptr};
-  SwapChain::Ptr mSwapChain{nullptr};
-  RenderPass::Ptr mRenderPass{nullptr};
+  std::vector<VkFramebuffer> swap_chain_frame_buffers_;
+  std::shared_ptr<Device> device_ = nullptr;
+  std::shared_ptr<SwapChain> swap_chain_ = nullptr;
+  std::shared_ptr<RenderPass> render_pass_ = nullptr;
 };
 
 #endif  // COMMON_FRAME_BUFFERS_H_

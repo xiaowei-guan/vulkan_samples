@@ -18,10 +18,8 @@
 
 #include <iostream>
 
-Window::Window(const uint32_t &width, const uint32_t &height) {
-  mWidth = width;
-  mHeight = height;
-
+Window::Window(const uint32_t &width, const uint32_t &height)
+    : width_(width), height_(height) {
   // Initializes the GLFW library.
   glfwInit();
 
@@ -29,18 +27,18 @@ Window::Window(const uint32_t &width, const uint32_t &height) {
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-  mWindow =
-      glfwCreateWindow(mWidth, mHeight, "vulkan window", nullptr, nullptr);
-  if (!mWindow) {
+  glfw_window_ =
+      glfwCreateWindow(width_, height_, "vulkan window", nullptr, nullptr);
+  if (!glfw_window_) {
     std::cerr << "Error: failed to create window" << std::endl;
   }
 }
 
 Window::~Window() {
-  glfwDestroyWindow(mWindow);
+  glfwDestroyWindow(glfw_window_);
   glfwTerminate();
 }
 
-bool Window::WindowShouldClose() { return glfwWindowShouldClose(mWindow); }
+bool Window::WindowShouldClose() { return glfwWindowShouldClose(glfw_window_); }
 
 void Window::PollEvents() { return glfwPollEvents(); }

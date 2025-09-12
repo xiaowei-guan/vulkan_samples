@@ -26,95 +26,80 @@
 
 class ShaderStageInfo {
  public:
-  using Ptr = std::shared_ptr<ShaderStageInfo>;
-  static Ptr Create(const Device::Ptr &device, const std::string &fileName,
-                    VkShaderStageFlagBits shaderStage,
-                    const std::string &entryPoint) {
-    return std::make_shared<ShaderStageInfo>(device, fileName, shaderStage,
-                                             entryPoint);
-  }
-
-  ShaderStageInfo(const Device::Ptr &device, const std::string &fileName,
+  ShaderStageInfo(const std::shared_ptr<Device> &device,
+                  const std::string &fileName,
                   VkShaderStageFlagBits shaderStage,
                   const std::string &entryPoint);
 
   ~ShaderStageInfo();
 
-  [[nodiscard]] auto GetShaderStage() const { return mShaderStage; }
-  [[nodiscard]] auto &GetShaderEntryPoint() const { return mEntryPoint; }
-  [[nodiscard]] auto GetShaderModule() const { return mShaderModule; }
-  [[nodiscard]] auto GetShaderStageInfo() const { return mShaderStageInfo; }
+  [[nodiscard]] auto GetShaderStage() const { return shader_stage_; }
+  [[nodiscard]] auto &GetShaderEntryPoint() const { return entry_point_; }
+  [[nodiscard]] auto GetShaderModule() const { return shader_module_; }
+  [[nodiscard]] auto GetShaderStageInfo() const { return shader_stage_info_; }
 
  private:
   void CreateShaderModule(const std::vector<char> &code);
 
  private:
-  VkShaderModule mShaderModule{VK_NULL_HANDLE};
-  VkPipelineShaderStageCreateInfo mShaderStageInfo{};
+  VkShaderModule shader_module_ = VK_NULL_HANDLE;
+  VkPipelineShaderStageCreateInfo shader_stage_info_{};
 
-  Device::Ptr mDevice{nullptr};
-  std::string mEntryPoint;
+  std::shared_ptr<Device> device_ = nullptr;
+  std::string entry_point_;
 
-  VkShaderStageFlagBits mShaderStage;
+  VkShaderStageFlagBits shader_stage_;
 };
 
 class GraphicsPipeline {
  public:
-  using Ptr = std::shared_ptr<GraphicsPipeline>;
-  static Ptr Create(const Device::Ptr &device,
-                    const RenderPass::Ptr &renderPass) {
-    return std::make_shared<GraphicsPipeline>(device, renderPass);
-  }
-
-  GraphicsPipeline(const Device::Ptr &device,
-                   const RenderPass::Ptr &renderPass);
+  GraphicsPipeline(const std::shared_ptr<Device> &device,
+                   const std::shared_ptr<RenderPass> &renderPass);
   ~GraphicsPipeline();
 
   void SetShaderStages(
       const std::vector<VkPipelineShaderStageCreateInfo> &shaderStages) {
-    mShaderStages = shaderStages;
+    shader_stages_ = shaderStages;
   }
 
   void SetViewports(const std::vector<VkViewport> &viewports) {
-    mViewports = viewports;
+    viewports_ = viewports;
   }
 
   void SetScissors(const std::vector<VkRect2D> &scissors) {
-    mScissors = scissors;
+    scissors_ = scissors;
   }
 
   void AddBlendAttachment(
       const VkPipelineColorBlendAttachmentState &blendAttachment) {
-    mBlendAttachmentStates.push_back(blendAttachment);
+    blend_attachment_states.push_back(blendAttachment);
   }
 
   void BuildPipeline();
 
-  [[nodiscard]] auto GetPipelineLayout() const { return mPipelineLayout; }
-  [[nodiscard]] auto GetPipeline() const { return mGraphicsPipeline; }
+  [[nodiscard]] auto GetPipelineLayout() const { return pipeline_layout; }
+  [[nodiscard]] auto GetPipeline() const { return graphics_pipeline_; }
 
  public:
-  VkPipelineVertexInputStateCreateInfo mVertexInputInfo{};
-  VkPipelineInputAssemblyStateCreateInfo mInputAssembly{};
-  VkPipelineViewportStateCreateInfo mViewportState{};
-  VkPipelineRasterizationStateCreateInfo mRasterizer{};
-  VkPipelineMultisampleStateCreateInfo mMultisampling{};
-
-  std::vector<VkPipelineColorBlendAttachmentState> mBlendAttachmentStates{};
-  VkPipelineColorBlendStateCreateInfo mColorBlending{};
-
-  VkPipelineLayoutCreateInfo mPipelineLayoutInfo{};
+  VkPipelineVertexInputStateCreateInfo vertex_input_info{};
+  VkPipelineInputAssemblyStateCreateInfo input_assembly{};
+  VkPipelineViewportStateCreateInfo viewport_state{};
+  VkPipelineRasterizationStateCreateInfo rasterizer{};
+  VkPipelineMultisampleStateCreateInfo multisampling{};
+  std::vector<VkPipelineColorBlendAttachmentState> blend_attachment_states{};
+  VkPipelineColorBlendStateCreateInfo color_blending{};
+  VkPipelineLayoutCreateInfo pipeline_layout_info{};
 
  private:
-  VkPipelineLayout mPipelineLayout{VK_NULL_HANDLE};
-  VkPipeline mGraphicsPipeline{VK_NULL_HANDLE};
+  VkPipelineLayout pipeline_layout = VK_NULL_HANDLE;
+  VkPipeline graphics_pipeline_ = VK_NULL_HANDLE;
 
-  Device::Ptr mDevice{nullptr};
-  RenderPass::Ptr mRenderPass{nullptr};
+  std::shared_ptr<Device> device_ = nullptr;
+  std::shared_ptr<RenderPass> render_pass_ = nullptr;
 
-  std::vector<VkPipelineShaderStageCreateInfo> mShaderStages;
-  std::vector<VkViewport> mViewports{};
-  std::vector<VkRect2D> mScissors{};
+  std::vector<VkPipelineShaderStageCreateInfo> shader_stages_{};
+  std::vector<VkViewport> viewports_{};
+  std::vector<VkRect2D> scissors_{};
 };
 
 #endif  // COMMON_GRAPHICS_PIPELINE_H_

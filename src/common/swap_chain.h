@@ -17,8 +17,8 @@
 #ifndef COMMON_SWAP_CHAIN_H_
 #define COMMON_SWAP_CHAIN_H_
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "common/device.h"
 #include "common/window.h"
@@ -32,15 +32,9 @@ struct SwapChainSupportDetails {
 
 class SwapChain {
  public:
-  using Ptr = std::shared_ptr<SwapChain>;
-  static Ptr Create(const Device::Ptr &device,
-                    const WindowSurface::Ptr &surface,
-                    const Window::Ptr &window) {
-    return std::make_shared<SwapChain>(device, surface, window);
-  }
-
-  SwapChain(const Device::Ptr &device, const WindowSurface::Ptr &surface,
-            const Window::Ptr &window);
+  SwapChain(const std::shared_ptr<Device> &device,
+            const std::shared_ptr<WindowSurface> &surface,
+            const std::shared_ptr<Window> &window);
 
   ~SwapChain();
 
@@ -54,35 +48,34 @@ class SwapChain {
 
   VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
-  [[nodiscard]] auto GetSwapChainExtent() const { return mSwapChainExtent; }
+  [[nodiscard]] auto GetSwapChainExtent() const { return swapchain_extent_; }
 
   [[nodiscard]] auto GetSwapChainImageFormat() const {
-    return mSwapChainImageFormat;
+    return swapchain_image_format_;
   }
 
-  [[nodiscard]] auto GetSwapChainImageCount() const { return mImageCount; }
+  [[nodiscard]] auto GetSwapChainImageCount() const { return image_count_; }
 
   [[nodiscard]] auto GetSwapChainImageView(const int index) const {
-    return mSwapChainImageViews[index];
+    return swapchain_imege_views_[index];
   }
 
-  [[nodiscard]] auto GetSwapChain() const { return mSwapChain; }
+  [[nodiscard]] auto GetSwapChain() const { return vk_swapchain_; }
 
  private:
   void CreateImageViews();
 
  private:
-  Device::Ptr mDevice{nullptr};
-  WindowSurface::Ptr mSurface{nullptr};
-  Window::Ptr mWindow{nullptr};
-  VkSwapchainKHR mSwapChain{VK_NULL_HANDLE};
+  std::shared_ptr<Device> device_ = nullptr;
+  std::shared_ptr<WindowSurface> window_surface_ = nullptr;
+  VkSwapchainKHR vk_swapchain_ = VK_NULL_HANDLE;
+  std::shared_ptr<Window> window_;
+  std::vector<VkImage> swapchain_images_;
+  VkFormat swapchain_image_format_;
+  VkExtent2D swapchain_extent_ ;
+  uint32_t image_count_ = 0;
 
-  std::vector<VkImage> mSwapChainImages{};
-  VkFormat mSwapChainImageFormat{};
-  VkExtent2D mSwapChainExtent{};
-  uint32_t mImageCount{0};
-
-  std::vector<VkImageView> mSwapChainImageViews{};
+  std::vector<VkImageView> swapchain_imege_views_;
 };
 
 #endif  // COMMON_SWAP_CHAIN_H_
