@@ -42,19 +42,19 @@ class HelloTriangleApplication {
   std::shared_ptr<Window> window_ = nullptr;
   std::shared_ptr<Instance> instance_ = nullptr;
   std::shared_ptr<WindowSurface> window_surface_ = nullptr;
-  std::shared_ptr<Device> mDevice{nullptr};
-  std::shared_ptr<SwapChain> mSwapChain{nullptr};
-  std::shared_ptr<RenderPass> mRenderPass{nullptr};
-  std::shared_ptr<GraphicsPipeline> mGraphicsPipeline{nullptr};
-  std::shared_ptr<FrameBuffers> mFrameBuffers{nullptr};
-  std::shared_ptr<CommandPool> mCommandPool{nullptr};
+  std::shared_ptr<Device> device_ = nullptr;
+  std::shared_ptr<SwapChain> swap_chain_ = nullptr;
+  std::shared_ptr<RenderPass> render_pass_ = nullptr;
+  std::shared_ptr<GraphicsPipeline> graphics_pipeline_ = nullptr;
+  std::shared_ptr<FrameBuffers> frame_buffers_ = nullptr;
+  std::shared_ptr<CommandPool> command_pool_ = nullptr;
 
   std::vector<std::shared_ptr<CommandBuffer>> mCommandBuffers{};
 
-  uint32_t mCurrentFrame{0};
-  std::vector<std::shared_ptr<Semaphore>> mImageAvailableSemaphores{};
-  std::vector<std::shared_ptr<Semaphore>> mRenderFinishedSemaphores{};
-  std::vector<std::shared_ptr<Fence>> mFences{};
+  uint32_t current_frame_ = 0;
+  std::vector<std::shared_ptr<Semaphore>> image_available_semaphores_;
+  std::vector<std::shared_ptr<Semaphore>> render_finished_semaphores_;
+  std::vector<std::shared_ptr<Fence>> fences_;
 };
 
 #endif
