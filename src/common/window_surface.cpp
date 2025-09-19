@@ -19,8 +19,8 @@
 #include <stdexcept>
 
 WindowSurface::WindowSurface(const std::shared_ptr<Instance> &instance,
-                             const std::shared_ptr<Window> &window) {
-  instance_ = instance;
+                             const std::shared_ptr<Window> &window)
+    : instance_(instance) {
   if (glfwCreateWindowSurface(instance_->GetInstance(), window->GetWindow(),
                               nullptr, &vk_surface_) != VK_SUCCESS) {
     throw std::runtime_error("Error: Failed to create window surface!");

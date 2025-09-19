@@ -83,10 +83,8 @@ void ShaderStageInfo::CreateShaderModule(const std::vector<char> &codeBuffer) {
 
 GraphicsPipeline::GraphicsPipeline(
     const std::shared_ptr<Device> &device,
-    const std::shared_ptr<RenderPass> &renderPass) {
-  device_ = device;
-  render_pass_ = renderPass;
-
+    const std::shared_ptr<RenderPass> &renderPass)
+    : device_(device), render_pass_(renderPass) {
   vertex_input_info.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
   input_assembly.sType =
@@ -108,9 +106,6 @@ GraphicsPipeline::~GraphicsPipeline() {
   if (pipeline_layout != VK_NULL_HANDLE) {
     vkDestroyPipelineLayout(device_->GetDevice(), pipeline_layout, nullptr);
   }
-
-  device_.reset();
-  render_pass_.reset();
 }
 
 void GraphicsPipeline::BuildPipeline() {

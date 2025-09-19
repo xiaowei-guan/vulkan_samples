@@ -41,11 +41,13 @@ void SubPass::BuildSubPassDescription() {
 
   vk_subpass_description_.colorAttachmentCount =
       static_cast<uint32_t>(color_attachment_references_.size());
-  vk_subpass_description_.pColorAttachments = color_attachment_references_.data();
+  vk_subpass_description_.pColorAttachments =
+      color_attachment_references_.data();
 
   vk_subpass_description_.inputAttachmentCount =
       static_cast<uint32_t>(input_attachment_references_.size());
-  vk_subpass_description_.pInputAttachments = input_attachment_references_.data();
+  vk_subpass_description_.pInputAttachments =
+      input_attachment_references_.data();
 
   vk_subpass_description_.pDepthStencilAttachment =
       depth_stencil_attachment_reference_.layout == VK_IMAGE_LAYOUT_UNDEFINED
@@ -53,9 +55,8 @@ void SubPass::BuildSubPassDescription() {
           : &depth_stencil_attachment_reference_;
 }
 
-RenderPass::RenderPass(const std::shared_ptr<Device>& device) {
-  device_ = device;
-}
+RenderPass::RenderPass(const std::shared_ptr<Device>& device)
+    : device_(device) {}
 
 RenderPass::~RenderPass() {
   if (vk_render_pass_ != VK_NULL_HANDLE) {
@@ -94,7 +95,8 @@ void RenderPass::BuildRenderPass() {
       static_cast<uint32_t>(vk_attachment_descriptions_.size());
   createInfo.pAttachments = vk_attachment_descriptions_.data();
 
-  createInfo.dependencyCount = static_cast<uint32_t>(vk_subpass_dependencies_.size());
+  createInfo.dependencyCount =
+      static_cast<uint32_t>(vk_subpass_dependencies_.size());
   createInfo.pDependencies = vk_subpass_dependencies_.data();
 
   createInfo.subpassCount = static_cast<uint32_t>(subPasses.size());

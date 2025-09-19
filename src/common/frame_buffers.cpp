@@ -18,11 +18,8 @@
 
 FrameBuffers::FrameBuffers(const std::shared_ptr<Device> &device,
                            const std::shared_ptr<SwapChain> &swapChain,
-                           const std::shared_ptr<RenderPass> &renderPass) {
-  device_ = device;
-  swap_chain_ = swapChain;
-  render_pass_ = renderPass;
-
+                           const std::shared_ptr<RenderPass> &renderPass)
+    : device_(device), swap_chain_(swapChain), render_pass_(renderPass) {
   size_t imageCount = swap_chain_->GetSwapChainImageCount();
   swap_chain_frame_buffers_.resize(imageCount);
 
@@ -49,8 +46,4 @@ FrameBuffers::~FrameBuffers() {
   for (auto framebuffer : swap_chain_frame_buffers_) {
     vkDestroyFramebuffer(device_->GetDevice(), framebuffer, nullptr);
   }
-
-  device_.reset();
-  swap_chain_.reset();
-  render_pass_.reset();
 }

@@ -28,19 +28,14 @@ const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
 
 Device::Device(const std::shared_ptr<Instance> &instance,
-               const std::shared_ptr<WindowSurface> &windowSurface) {
-  instance_ = instance;
-  window_surface_ = windowSurface;
+               const std::shared_ptr<WindowSurface> &windowSurface)
+    : instance_(instance), window_surface_(windowSurface) {
   PickPhysicalDevice();
   FindQueueFamilies(physical_device_);
   CreateLogicalDevice();
 }
 
-Device::~Device() {
-  vkDestroyDevice(device_, nullptr);
-  window_surface_.reset();
-  instance_.reset();
-}
+Device::~Device() { vkDestroyDevice(device_, nullptr); }
 
 void Device::PickPhysicalDevice() {
   uint32_t deviceCount = 0;

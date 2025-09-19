@@ -44,10 +44,8 @@ class ShaderStageInfo {
  private:
   VkShaderModule shader_module_ = VK_NULL_HANDLE;
   VkPipelineShaderStageCreateInfo shader_stage_info_{};
-
   std::shared_ptr<Device> device_ = nullptr;
   std::string entry_point_;
-
   VkShaderStageFlagBits shader_stage_;
 };
 

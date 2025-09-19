@@ -16,9 +16,7 @@
 
 #include "common/sync_objects.h"
 
-Semaphore::Semaphore(const std::shared_ptr<Device> &device) {
-  device_ = device;
-
+Semaphore::Semaphore(const std::shared_ptr<Device> &device) : device_(device) {
   VkSemaphoreCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -34,9 +32,8 @@ Semaphore::~Semaphore() {
   }
 }
 
-Fence::Fence(const std::shared_ptr<Device> &device, bool signaled) {
-  device_ = device;
-
+Fence::Fence(const std::shared_ptr<Device> &device, bool signaled)
+    : device_(device) {
   VkFenceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
   createInfo.flags = signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;

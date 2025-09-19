@@ -20,9 +20,8 @@
 #include <stdexcept>
 
 CommandPool::CommandPool(const std::shared_ptr<Device> &device,
-                         VkCommandPoolCreateFlagBits flag) {
-  device_ = device;
-
+                         VkCommandPoolCreateFlagBits flag)
+    : device_(device) {
   QueueFamilyIndices queueFamilyIndices = device_->GetQueueFamilyIndices();
 
   VkCommandPoolCreateInfo poolInfo{};
@@ -44,10 +43,8 @@ CommandPool::~CommandPool() {
 
 CommandBuffer::CommandBuffer(const std::shared_ptr<Device> &device,
                              const std::shared_ptr<CommandPool> &commandPool,
-                             bool asSecondary) {
-  device_ = device;
-  command_pool_ = commandPool;
-
+                             bool asSecondary)
+    : device_(device), command_pool_(commandPool) {
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   allocInfo.commandPool = command_pool_->GetCommandPool();
@@ -61,10 +58,7 @@ CommandBuffer::CommandBuffer(const std::shared_ptr<Device> &device,
   }
 }
 
-CommandBuffer::~CommandBuffer() {
-  command_pool_.reset();
-  device_.reset();
-}
+CommandBuffer::~CommandBuffer() {}
 
 void CommandBuffer::Begin(VkCommandBufferUsageFlags flag,
                           const VkCommandBufferInheritanceInfo &inheritance) {

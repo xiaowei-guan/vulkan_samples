@@ -1,17 +1,12 @@
 #include "hello_triangle.h"
 
 void HelloTriangleApplication::Run() {
-  InitWindow();
   InitVulkan();
   MainLoop();
-  CleanUp();
-}
-
-void HelloTriangleApplication::InitWindow() {
-  window_ = std::make_unique<Window>(WIDTH, HEIGHT);
 }
 
 void HelloTriangleApplication::InitVulkan() {
+  window_ = std::make_unique<Window>(WIDTH, HEIGHT);
   instance_ = std::make_shared<Instance>(true);
   // The window surface can actually influence the physical device selection.
   // So we create it after the instance creation.
@@ -330,11 +325,4 @@ void HelloTriangleApplication::DrawFrame() {
   current_frame_ = (current_frame_ + 1) % swap_chain_->GetSwapChainImageCount();
 }
 
-void HelloTriangleApplication::CleanUp() {
-  graphics_pipeline_.reset();
-  swap_chain_.reset();
-  device_.reset();
-  window_surface_.reset();
-  instance_.reset();
-  window_.reset();
-}
+void HelloTriangleApplication::CleanUp() {}

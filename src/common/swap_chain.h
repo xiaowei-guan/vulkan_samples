@@ -68,13 +68,12 @@ class SwapChain {
  private:
   std::shared_ptr<Device> device_ = nullptr;
   std::shared_ptr<WindowSurface> window_surface_ = nullptr;
+   std::shared_ptr<Window> window_;
   VkSwapchainKHR vk_swapchain_ = VK_NULL_HANDLE;
-  std::shared_ptr<Window> window_;
   std::vector<VkImage> swapchain_images_;
   VkFormat swapchain_image_format_;
   VkExtent2D swapchain_extent_ ;
   uint32_t image_count_ = 0;
-
   std::vector<VkImageView> swapchain_imege_views_;
 };
 

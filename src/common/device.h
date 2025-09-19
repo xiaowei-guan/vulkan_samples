@@ -65,10 +65,10 @@ class Device {
   [[nodiscard]] auto GetPresentQueue() const { return present_queue_; }
 
  private:
-  VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
   std::shared_ptr<Instance> instance_ = nullptr;
   std::shared_ptr<WindowSurface> window_surface_ = nullptr;
-  VkDevice device_ = VK_NULL_HANDLE;  // logical device handle
+  VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
+  VkDevice device_ = VK_NULL_HANDLE;
   QueueFamilyIndices queue_family_indices_;
   VkQueue graphics_queue_ = VK_NULL_HANDLE;
   VkQueue present_queue_ = VK_NULL_HANDLE;

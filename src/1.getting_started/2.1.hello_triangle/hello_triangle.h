@@ -24,7 +24,6 @@ class HelloTriangleApplication {
   void Run();
 
  private:
-  void InitWindow();
 
   void InitVulkan();
 

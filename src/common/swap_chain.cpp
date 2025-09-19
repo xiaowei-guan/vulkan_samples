@@ -22,10 +22,10 @@
 
 SwapChain::SwapChain(const std::shared_ptr<Device> &device,
                      const std::shared_ptr<WindowSurface> &surface,
-                     const std::shared_ptr<Window> &window) {
-  device_ = device;
-  window_surface_ = surface;
-
+                     const std::shared_ptr<Window> &window):
+                     device_(device),
+                     window_surface_(surface),
+                     window_(window) {
   SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport();
 
   VkSurfaceFormatKHR surfaceFormat =
@@ -97,9 +97,6 @@ SwapChain::~SwapChain() {
   if (vk_swapchain_) {
     vkDestroySwapchainKHR(device_->GetDevice(), vk_swapchain_, nullptr);
   }
-  device_.reset();
-  window_surface_.reset();
-  window_.reset();
 }
 
 SwapChainSupportDetails SwapChain::QuerySwapChainSupport() {
